@@ -78,6 +78,37 @@ class EmailService
     }
 
     /**
+     * Send password reset email with plain token.
+     *
+     * @param User $user
+     * @param string $plainToken Plain text reset token
+     * @return void
+     */
+    public function sendPasswordResetEmail(User $user, string $plainToken): void
+    {
+        try {
+            $resetUrl = config('app.frontend_url') . '/auth/reset-password?token=' . urlencode($plainToken);
+
+            Mail::html(
+                view('emails.reset-password', [
+                    'user' => $user,
+                    'resetUrl' => $resetUrl,
+                    'expiresIn' => '30 minutes',
+                ])->render(),
+                function (Message $message) use ($user) {
+                    $message->to($user->email)
+                        ->subject('Reset Your Password');
+                }
+            );
+        } catch (\Exception $e) {
+            \Log::error('Failed to send password reset email: ' . $e->getMessage(), [
+                'user_id' => $user->id,
+                'email' => $user->email,
+            ]);
+        }
+    }
+
+    /**
      * Send welcome email.
      *
      * @param User $user

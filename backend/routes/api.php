@@ -22,6 +22,11 @@ Route::prefix('v1')->group(function () {
         // Login and token refresh
         Route::post('/login', [AuthController::class, 'login'])->name('auth.login');
         Route::post('/refresh', [AuthController::class, 'refresh'])->name('auth.refresh');
+
+        // Password reset
+        Route::post('/forgot-password', [AuthController::class, 'forgotPassword'])->name('auth.forgotPassword');
+        Route::post('/verify-reset-token', [AuthController::class, 'verifyResetToken'])->name('auth.verifyResetToken');
+        Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('auth.resetPassword');
     });
 
     // Protected routes (require JWT authentication)

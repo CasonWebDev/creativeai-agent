@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Services\AuthService;
 use App\Services\TokenService;
 use App\Services\EmailService;
+use App\Services\PasswordResetService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Validation\ValidationException;
@@ -15,15 +16,18 @@ class AuthController extends Controller
     protected AuthService $authService;
     protected TokenService $tokenService;
     protected EmailService $emailService;
+    protected PasswordResetService $passwordResetService;
 
     public function __construct(
         AuthService $authService,
         TokenService $tokenService,
-        EmailService $emailService
+        EmailService $emailService,
+        PasswordResetService $passwordResetService
     ) {
         $this->authService = $authService;
         $this->tokenService = $tokenService;
         $this->emailService = $emailService;
+        $this->passwordResetService = $passwordResetService;
     }
 
     /**
@@ -274,5 +278,145 @@ class AuthController extends Controller
                 'created_at',
             ]),
         ], 200);
+    }
+
+    /**
+     * Request a password reset.
+     *
+     * POST /api/v1/auth/forgot-password
+     */
+    public function forgotPassword(Request $request): JsonResponse
+    {
+        try {
+            $email = $request->input('email');
+
+            if (empty($email)) {
+                throw ValidationException::withMessages([
+                    'email' => 'Email is required.',
+                ]);
+            }
+
+            $reset = $this->passwordResetService->requestReset(
+                $email,
+                $request->ip(),
+                $request->userAgent()
+            );
+
+            // Send password reset email
+            if ($reset->user_id) {
+                $this->emailService->sendPasswordResetEmail(
+                    $reset->user,
+                    $reset->plain_token
+                );
+            }
+
+            // Always return success for security (prevent email enumeration)
+            return response()->json([
+                'success' => true,
+                'message' => 'If an account exists with that email, a password reset link will be sent shortly.',
+            ], 200);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed.',
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Verify a password reset token.
+     *
+     * POST /api/v1/auth/verify-reset-token
+     */
+    public function verifyResetToken(Request $request): JsonResponse
+    {
+        try {
+            $token = $request->input('token');
+
+            if (empty($token)) {
+                throw ValidationException::withMessages([
+                    'token' => 'Reset token is required.',
+                ]);
+            }
+
+            $reset = $this->passwordResetService->verifyResetToken($token);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Token is valid.',
+                'data' => [
+                    'email' => $reset->email,
+                    'token_expires_at' => $reset->expires_at,
+                ],
+            ], 200);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed.',
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 422);
+        }
+    }
+
+    /**
+     * Reset a user's password.
+     *
+     * POST /api/v1/auth/reset-password
+     */
+    public function resetPassword(Request $request): JsonResponse
+    {
+        try {
+            $token = $request->input('token');
+            $password = $request->input('password');
+
+            if (empty($token)) {
+                throw ValidationException::withMessages([
+                    'token' => 'Reset token is required.',
+                ]);
+            }
+
+            if (empty($password)) {
+                throw ValidationException::withMessages([
+                    'password' => 'Password is required.',
+                ]);
+            }
+
+            $user = $this->passwordResetService->resetPassword(
+                $token,
+                $password,
+                $request->ip(),
+                $request->userAgent()
+            );
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Password reset successful. You can now login with your new password.',
+                'data' => [
+                    'user' => $user->only(['id', 'email', 'name']),
+                ],
+            ], 200);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed.',
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 422);
+        }
     }
 }
