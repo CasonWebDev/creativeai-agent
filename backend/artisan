@@ -1,0 +1,29 @@
+#!/usr/bin/env php
+<?php
+
+/*
+|--------------------------------------------------------------------------
+| Build The Bootstrap Application
+|--------------------------------------------------------------------------
+|
+| Bind all of the critical classes needed to bootstrap the application
+| and resolve the console application instance. Then we'll be ready
+| to execute the command.
+|
+*/
+
+$app = require __DIR__.'/bootstrap/app.php';
+
+$kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
+
+/*
+|--------------------------------------------------------------------------
+| Execute The Artisan Command
+|--------------------------------------------------------------------------
+|
+| When we run the "artisan" command, Laravel needs to grab the Artisan
+| console application instance. We'll pass in the static instance.
+|
+*/
+
+exit($kernel->handle($input = new Symfony\Component\Console\Input\ArgvInput, new Symfony\Component\Console\Output\ConsoleOutput));
