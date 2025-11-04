@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Models\User;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Mail\Message;
+use Illuminate\Support\Facades\Mail;
 
 final class EmailService
 {
@@ -27,7 +27,7 @@ final class EmailService
                     'confirmationUrl' => $confirmationUrl,
                     'expiresIn' => '1 hour',
                 ])->render(),
-                function (Message $message) use ($user) {
+                function (Message $message) use ($user): void {
                     $message->to($user->email)
                         ->subject('Confirm Your Email Address');
                 }
@@ -63,7 +63,7 @@ final class EmailService
                     'resetUrl' => $resetUrl,
                     'expiresIn' => '1 hour',
                 ])->render(),
-                function (Message $message) use ($user) {
+                function (Message $message) use ($user): void {
                     $message->to($user->email)
                         ->subject('Reset Your Password');
                 }
@@ -93,7 +93,7 @@ final class EmailService
                     'resetUrl' => $resetUrl,
                     'expiresIn' => '30 minutes',
                 ])->render(),
-                function (Message $message) use ($user) {
+                function (Message $message) use ($user): void {
                     $message->to($user->email)
                         ->subject('Reset Your Password');
                 }
@@ -119,7 +119,7 @@ final class EmailService
                     'user' => $user,
                     'dashboardUrl' => config('app.frontend_url') . '/dashboard',
                 ])->render(),
-                function (Message $message) use ($user) {
+                function (Message $message) use ($user): void {
                     $message->to($user->email)
                         ->subject('Welcome to CreativeAI Agent!');
                 }

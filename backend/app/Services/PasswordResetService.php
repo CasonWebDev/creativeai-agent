@@ -210,11 +210,11 @@ final class PasswordResetService
             $errors['password'] = 'Password is required.';
         } elseif (strlen($password) < 8) {
             $errors['password'] = 'Password must be at least 8 characters.';
-        } elseif (!preg_match('/[A-Z]/', $password)) {
+        } elseif (! preg_match('/[A-Z]/', $password)) {
             $errors['password'] = 'Password must contain an uppercase letter.';
-        } elseif (!preg_match('/[a-z]/', $password)) {
+        } elseif (! preg_match('/[a-z]/', $password)) {
             $errors['password'] = 'Password must contain a lowercase letter.';
-        } elseif (!preg_match('/[0-9]/', $password)) {
+        } elseif (! preg_match('/[0-9]/', $password)) {
             $errors['password'] = 'Password must contain a number.';
         }
 

@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use App\Models\User;
-use App\Models\EmailConfirmation;
 use App\Models\AuditLog;
-use Illuminate\Support\Facades\Hash;
+use App\Models\EmailConfirmation;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
 final class AuthService

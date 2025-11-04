@@ -9,17 +9,12 @@ use App\Models\User;
 use Exception;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
-use Illuminate\Support\Facades\Hash;
 
 final class TokenService
 {
     /**
      * Create a new session and return JWT tokens.
      *
-     * @param User $user
-     * @param string $ipAddress
-     * @param string $userAgent
-     * @param array $deviceInfo
      * @return array<string, mixed> Session with tokens
      */
     public function createSession(User $user, string $ipAddress, string $userAgent, array $deviceInfo = []): array

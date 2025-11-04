@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class ApiToken extends Model
+final class ApiToken extends Model
 {
     use HasFactory;
 
@@ -91,7 +91,7 @@ class ApiToken extends Model
      */
     public function isActive(): bool
     {
-        return $this->revoked_at === null && 
+        return $this->revoked_at === null &&
                ($this->expires_at === null || $this->expires_at->isFuture());
     }
 
