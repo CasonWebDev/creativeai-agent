@@ -43,37 +43,54 @@ The API documentation has been successfully created and is ready to use with Ope
 
 ## How to Use
 
-### Option 1: Swagger UI (Recommended)
+### Option 1: Local Swagger UI (Recommended) ⭐
 ```bash
-# Download Swagger UI and point it to the OpenAPI JSON:
-# https://swagger.io/tools/swagger-ui/
+# Access the interactive Swagger UI:
+# http://localhost:8000/swagger/ui/
 
-# Or use online editor:
+# Features:
+# - Interactive API documentation
+# - Test endpoints with "Try it out"
+# - Built-in authentication support
+# - Dark/Light theme toggle
+# - Download OpenAPI spec
+```
+
+### Option 2: Online Swagger Editor
+```bash
+# Use the official Swagger UI editor:
 # https://editor.swagger.io/?url=http://localhost:8000/swagger/openapi.json
 ```
 
-### Option 2: ReDoc (Alternative UI)
+### Option 3: ReDoc (Alternative UI)
 ```bash
 # Visit online ReDoc viewer:
 # https://redoc.ly/try/
 # Paste the URL to openapi.json
 ```
 
-### Option 3: API Client Tools
-- **Postman**: Import JSON file directly
+### Option 4: API Client Tools
+- **Postman**: Import JSON file directly (`backend/public/swagger/openapi.json`)
 - **Insomnia**: Import JSON file directly
 - **curl**: Use examples from SWAGGER_SETUP.md
 
-## Accessing the OpenAPI JSON
+## Accessing the API Documentation
 
-**Local Development:**
+**Interactive Swagger UI:**
+```
+http://localhost:8000/swagger/ui/
+```
+
+**OpenAPI JSON Specification:**
 ```
 http://localhost:8000/swagger/openapi.json
 ```
 
-**File Location:**
+**File Locations:**
 ```
-backend/public/swagger/openapi.json
+backend/public/swagger/ui/index.html      # Swagger UI interface
+backend/public/swagger/openapi.json       # OpenAPI specification
+backend/public/swagger/ui/README.md       # Swagger UI documentation
 ```
 
 ## Key Features
@@ -101,11 +118,6 @@ backend/public/swagger/openapi.json
 
 ## Next Steps
 
-### If Deploying Swagger UI
-1. Copy Swagger UI dist files to `backend/public/swagger/ui/`
-2. Configure index.html to point to `openapi.json`
-3. Access at `http://localhost:8000/swagger/ui/`
-
 ### Updating Documentation
 To update documentation after API changes:
 
@@ -116,13 +128,21 @@ To update documentation after API changes:
    php vendor/bin/openapi openapi/ -o public/swagger/openapi.json
    ```
 3. Or manually update `backend/public/swagger/openapi.json`
-4. Test with Swagger UI or ReDoc
+4. Refresh `http://localhost:8000/swagger/ui/` in your browser
 
 ### Adding New Endpoints
 1. Add annotation to `backend/openapi/endpoints.php`
 2. Include `@OA\Post` or `@OA\Get` with full documentation
 3. Regenerate or manually update `openapi.json`
-4. Test with documentation tools
+4. Test the new endpoint in Swagger UI at `/swagger/ui/`
+
+### Testing Endpoints
+1. Navigate to `http://localhost:8000/swagger/ui/`
+2. Expand any endpoint to see details
+3. Click "Try it out" to test the endpoint
+4. Fill in required parameters
+5. Click "Execute" to send the request
+6. View response and status code
 
 ## Testing the Documentation
 
@@ -141,7 +161,9 @@ jq '.paths | to_entries[] | "\(.key): \(.value[keys[0]].summary)"' backend/publi
 
 | Component | Status | Location |
 |-----------|--------|----------|
+| Swagger UI | ✅ Deployed | `http://localhost:8000/swagger/ui/` |
 | OpenAPI JSON | ✅ Generated | `backend/public/swagger/openapi.json` |
+| UI Files | ✅ Created | `backend/public/swagger/ui/` |
 | API Annotations | ✅ Created | `backend/openapi/` |
 | Setup Documentation | ✅ Created | `SWAGGER_SETUP.md` |
 | All 9 Endpoints | ✅ Documented | `openapi.json` |
@@ -150,12 +172,10 @@ jq '.paths | to_entries[] | "\(.key): \(.value[keys[0]].summary)"' backend/publi
 
 ## Git Commit
 
-**Commit Hash**: `e9e3d23`
-**Message**: "docs: Create comprehensive OpenAPI/Swagger documentation"
-**Changes**: 
-- 6 files changed
-- 1255 insertions
-- 2 deletions
+**Latest Commits:**
+1. `a866414` - "feat: Add local Swagger UI interface" - Deployed interactive Swagger UI
+2. `1c4a60e` - "docs: Add API documentation summary and quick reference"
+3. `e9e3d23` - "docs: Create comprehensive OpenAPI/Swagger documentation"
 
 ## Support
 
