@@ -29,47 +29,49 @@ COPY --from=composer:2.6 /usr/bin/composer /usr/bin/composer
 # Set working directory
 WORKDIR /app
 
-# Copy composer files
-COPY composer.json composer.lock ./
+# Copy composer files from backend directory
+COPY backend/composer.json backend/composer.lock* ./
 
 # Install dependencies
-RUN composer install --no-dev --optimize-autoloader --no-scripts
+RUN composer install --no-dev --optimize-autoloader --no-scripts 2>&1
 
-# Copy application code
-COPY . .
+# Copy backend application code
+COPY backend/ .
 
 # Generate Laravel key and optimize
-RUN composer run-script post-install-cmd
+RUN php artisan key:generate --force 2>/dev/null || true && \
+    php artisan config:cache 2>/dev/null || true
 
 # Stage 2: Runtime
 FROM php:8.2-fpm-alpine
 
-# Install runtime dependencies
+# Install build dependencies and runtime dependencies
 RUN apk add --no-cache \
     libpq \
     curl \
     postgresql-client \
-    supervisor
+    supervisor \
+    postgresql-dev \
+    libzip-dev \
+    oniguruma-dev \
+    $PHPIZE_DEPS
 
 # Install PHP extensions
 RUN docker-php-ext-install \
     pdo \
     pdo_pgsql \
-    pgsql \
     zip \
     bcmath \
     pcntl \
-    posix
+    posix \
+    mbstring
 
 # Install Redis extension for caching
-RUN apk add --no-cache redis && \
-    pecl install redis && \
+RUN pecl install redis && \
     docker-php-ext-enable redis
 
-# Install additional PHP extensions
-RUN docker-php-ext-install \
-    exif \
-    mbstring
+# Clean up build dependencies
+RUN apk del $PHPIZE_DEPS postgresql-dev libzip-dev oniguruma-dev
 
 # Create app user
 RUN addgroup -g 1000 appuser && \
