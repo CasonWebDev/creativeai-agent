@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services;
 
 use App\Models\User;
@@ -17,7 +19,7 @@ class AuthService
      * @param array $data User registration data (email, name, password)
      * @param string $ipAddress Client IP address
      * @param string $userAgent Client user agent
-     * @return array User and confirmation token
+     * @return array<string, mixed> User and confirmation token
      * @throws ValidationException
      */
     public function register(array $data, string $ipAddress, string $userAgent): array
@@ -99,13 +101,13 @@ class AuthService
     }
 
     /**
-     * Attempt user login.
+     * Log in a user.
      *
      * @param array $credentials Email and password
      * @param string $ipAddress Client IP address
      * @param string $userAgent Client user agent
      * @param array $deviceInfo Device information
-     * @return array User and tokens
+     * @return array<string, mixed> User and tokens
      * @throws ValidationException
      */
     public function login(array $credentials, string $ipAddress, string $userAgent, array $deviceInfo = []): array

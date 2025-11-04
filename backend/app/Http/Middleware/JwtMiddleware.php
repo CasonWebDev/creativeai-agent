@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use App\Services\TokenService;
 use App\Models\User;
@@ -22,7 +23,7 @@ class JwtMiddleware
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  \Closure  $next
-     * @return mixed
+     * @return \Illuminate\Http\Response|\Illuminate\Http\JsonResponse
      */
     public function handle(Request $request, Closure $next)
     {

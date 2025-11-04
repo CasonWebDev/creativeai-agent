@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services;
 
 use App\Models\User;
@@ -14,7 +16,6 @@ class EmailService
      *
      * @param User $user
      * @param string $confirmationToken
-     * @return void
      */
     public function sendEmailConfirmation(User $user, string $confirmationToken): void
     {
@@ -45,7 +46,6 @@ class EmailService
      * Send password reset email.
      *
      * @param User $user
-     * @return void
      * @deprecated Use sendPasswordResetEmail instead
      */
     public function sendPasswordReset(User $user): void
@@ -82,7 +82,6 @@ class EmailService
      *
      * @param User $user
      * @param string $plainToken Plain text reset token
-     * @return void
      */
     public function sendPasswordResetEmail(User $user, string $plainToken): void
     {
@@ -112,7 +111,6 @@ class EmailService
      * Send welcome email.
      *
      * @param User $user
-     * @return void
      */
     public function sendWelcome(User $user): void
     {

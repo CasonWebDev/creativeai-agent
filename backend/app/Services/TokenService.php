@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services;
 
 use App\Models\User;
@@ -18,7 +20,7 @@ class TokenService
      * @param string $ipAddress
      * @param string $userAgent
      * @param array $deviceInfo
-     * @return array Session with tokens
+     * @return array<string, mixed> Session with tokens
      */
     public function createSession(User $user, string $ipAddress, string $userAgent, array $deviceInfo = []): array
     {
@@ -65,7 +67,7 @@ class TokenService
      * Refresh an access token using a refresh token.
      *
      * @param string $refreshToken Plain text refresh token
-     * @return array New access token and updated session info
+     * @return array<string, mixed> New access token and updated session info
      * @throws Exception
      */
     public function refreshAccessToken(string $refreshToken): array
@@ -144,9 +146,6 @@ class TokenService
 
     /**
      * Revoke a session (logout).
-     *
-     * @param Session $session
-     * @return void
      */
     public function revokeSession(Session $session): void
     {
@@ -157,9 +156,6 @@ class TokenService
 
     /**
      * Revoke all sessions for a user.
-     *
-     * @param User $user
-     * @return int Number of sessions revoked
      */
     public function revokeAllSessions(User $user): int
     {
@@ -268,9 +264,6 @@ class TokenService
 
     /**
      * Detect device type from user agent.
-     *
-     * @param string $userAgent
-     * @return string
      */
     protected function detectDeviceType(string $userAgent): string
     {

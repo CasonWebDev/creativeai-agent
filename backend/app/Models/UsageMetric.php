@@ -105,7 +105,7 @@ class UsageMetric extends Model
         if ($this->tier_limit === 0) {
             return 0;
         }
-        return round(($this->count / $this->tier_limit) * 100, 2);
+        return round($this->count / $this->tier_limit * 100, 2);
     }
 
     /**
