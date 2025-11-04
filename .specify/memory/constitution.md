@@ -3,31 +3,27 @@
 <!--
 SYNC IMPACT REPORT
 ==================
-Version Change: N/A → 1.0.0 (NEW)
+Version Change: 1.0.0 → 1.1.0 (MINOR - Expanded Architecture principle)
 Ratification Date: 2025-11-04
 Last Amendment: 2025-11-04
 
-Added Principles (10 total):
-- I. Architecture & Design
-- II. Code Quality
-- III. Security
-- IV. Performance
-- V. AI Agents
-- VI. Integrations
-- VII. Data & Database
-- VIII. Monitoring
-- IX. Development Workflow
-- X. Costs & Usage Limits
+Modified Principles:
+- I. Architecture & Design (expanded with 4 new containerization rules)
 
-New Sections:
-- Core Principles (10 principles)
-- Implementation Standards
-- Governance
+Amendment Summary:
+- Added mandatory Docker containerization for backend (Laravel) in all environments
+- Added mandatory Docker containerization for PostgreSQL database in all environments
+- Added Docker Compose requirement for local development orchestration
+- Added multi-stage Dockerfile and health check requirements
+
+Impact:
+- Development workflow now requires Docker Desktop (local environment consistency)
+- CI/CD pipeline must build and push Docker images
+- Deployment must support container orchestration (Kubernetes, Docker Swarm, etc.)
 
 Templates Requiring Review:
-- ⚠ .specify/templates/plan-template.md: May need "AI Agent Architecture" checks
-- ⚠ .specify/templates/spec-template.md: May need security & performance gates
-- ⚠ .specify/templates/tasks-template.md: May need agent/monitoring task types
+- ⚠ .specify/templates/plan-template.md: Add Docker/container setup to Phase 1
+- ⚠ .specify/templates/tasks-template.md: Add Dockerfile creation tasks to foundational phase
 -->
 
 ## Core Principles
@@ -40,8 +36,12 @@ Templates Requiring Review:
 - Event-driven architecture MUST be used for inter-agent communication
 - Design patterns (Repository, Service Layer, Factory) MUST be applied for AI agent implementations
 - Microservices separation MUST be enforced: API Laravel and Worker CrewAI processes run independently
+- Backend Laravel application MUST run inside a Docker container in all environments (local, staging, production)
+- PostgreSQL database MUST run inside a Docker container in all environments (local, staging, production)
+- Docker Compose MUST be used for local development to orchestrate backend and database services
+- All Dockerfiles MUST use multi-stage builds to minimize image size and include health checks
 
-**Rationale**: Architectural clarity enables independent scaling, testing, and maintenance of frontend and backend systems. Event-driven patterns allow agents to communicate asynchronously, improving resilience and throughput.
+**Rationale**: Architectural clarity enables independent scaling, testing, and maintenance of frontend and backend systems. Event-driven patterns allow agents to communicate asynchronously, improving resilience and throughput. Containerization ensures environment consistency (dev/staging/prod parity), simplifies deployment, enables orchestration, and provides process isolation for reliability.
 
 ---
 
@@ -209,4 +209,4 @@ Templates Requiring Review:
 
 ---
 
-**Version**: 1.0.0 | **Ratified**: 2025-11-04 | **Last Amended**: 2025-11-04
+**Version**: 1.1.0 | **Ratified**: 2025-11-04 | **Last Amended**: 2025-11-04
