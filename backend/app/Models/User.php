@@ -7,6 +7,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class User extends Authenticatable
 {
@@ -87,5 +88,57 @@ class User extends Authenticatable
     public function getTier(): string
     {
         return $this->tier ?? 'free';
+    }
+
+    /**
+     * Relationships
+     */
+
+    /**
+     * Get all sessions for the user.
+     */
+    public function sessions(): HasMany
+    {
+        return $this->hasMany(Session::class);
+    }
+
+    /**
+     * Get all password reset requests for the user.
+     */
+    public function passwordResets(): HasMany
+    {
+        return $this->hasMany(PasswordReset::class);
+    }
+
+    /**
+     * Get all email confirmations for the user.
+     */
+    public function emailConfirmations(): HasMany
+    {
+        return $this->hasMany(EmailConfirmation::class);
+    }
+
+    /**
+     * Get all usage metrics for the user.
+     */
+    public function usageMetrics(): HasMany
+    {
+        return $this->hasMany(UsageMetric::class);
+    }
+
+    /**
+     * Get all API tokens for the user.
+     */
+    public function apiTokens(): HasMany
+    {
+        return $this->hasMany(ApiToken::class);
+    }
+
+    /**
+     * Get all audit logs for the user.
+     */
+    public function auditLogs(): HasMany
+    {
+        return $this->hasMany(AuditLog::class);
     }
 }

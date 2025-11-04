@@ -54,6 +54,8 @@ RUN apk add --no-cache \
     postgresql-dev \
     libzip-dev \
     oniguruma-dev \
+    libzip \
+    oniguruma \
     $PHPIZE_DEPS
 
 # Install PHP extensions
@@ -70,7 +72,7 @@ RUN docker-php-ext-install \
 RUN pecl install redis && \
     docker-php-ext-enable redis
 
-# Clean up build dependencies
+# Clean up build dependencies (keep runtime libs)
 RUN apk del $PHPIZE_DEPS postgresql-dev libzip-dev oniguruma-dev
 
 # Create app user

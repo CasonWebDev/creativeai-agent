@@ -1,5 +1,7 @@
 <?php
 
+require_once dirname(__DIR__) . '/vendor/autoload.php';
+
 use Illuminate\Foundation\Application;
 
 return Application::configure(basePath: dirname(__DIR__))
@@ -13,9 +15,6 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->api(prepend: [
             \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
         ]);
-
-        $middleware->throttleApi();
-        $middleware->throttleRequests('60,1');
     })
     ->withExceptions(function ($exceptions) {
         //
