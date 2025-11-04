@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use App\Models\User;
-use App\Models\PasswordReset;
 use App\Models\AuditLog;
-use Illuminate\Support\Facades\Hash;
+use App\Models\PasswordReset;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
-class PasswordResetService
+final class PasswordResetService
 {
     public const RESET_TOKEN_EXPIRATION = 30; // minutes
 
@@ -180,7 +180,6 @@ class PasswordResetService
      * Check if a password reset is still valid.
      *
      * @param PasswordReset $reset
-     * @return bool
      */
     protected function isResetValid(PasswordReset $reset): bool
     {

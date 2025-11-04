@@ -11,7 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Validation\ValidationException;
 
-class AuthController extends Controller
+final class AuthController extends Controller
 {
     protected AuthService $authService;
     protected TokenService $tokenService;
@@ -220,14 +220,14 @@ class AuthController extends Controller
     {
         try {
             $user = $request->user();
-            
-            if (!$user) {
+
+            if (! $user) {
                 throw new \Exception('User not authenticated.');
             }
 
             // Get current session from token
             $sessionId = $request->input('session_id');
-            
+
             if ($sessionId) {
                 $session = $user->sessions()->find($sessionId);
                 if ($session) {

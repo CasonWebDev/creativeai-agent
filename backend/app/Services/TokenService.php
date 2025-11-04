@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use App\Models\User;
 use App\Models\Session;
+use App\Models\User;
+use Exception;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
-use Illuminate\Support\Facades\Storage;
-use Exception;
+use Illuminate\Support\Facades\Hash;
 
-class TokenService
+final class TokenService
 {
     /**
      * Create a new session and return JWT tokens.
@@ -29,7 +29,7 @@ class TokenService
         $rememberDevice = $deviceInfo['remember_device'] ?? false;
 
         // Calculate session expiration
-        $expiresAt = $rememberDevice 
+        $expiresAt = $rememberDevice
             ? now()->addDays(90)
             : now()->addDays(30);
 
@@ -79,7 +79,7 @@ class TokenService
             ->active()
             ->first();
 
-        if (!$session) {
+        if (! $session) {
             throw new Exception('Invalid or expired refresh token.');
         }
 
@@ -100,8 +100,6 @@ class TokenService
     /**
      * Generate a JWT access token.
      *
-     * @param User $user
-     * @param int $sessionId
      * @return string JWT token
      */
     public function generateAccessToken(User $user, int $sessionId): string
@@ -112,7 +110,7 @@ class TokenService
         $payload = [
             'iat' => $now,
             'exp' => $now + $ttl,
-            'sub' => (string)$user->id,
+            'sub' => (string) $user->id,
             'sid' => $sessionId,
             'email' => $user->email,
             'tier' => $user->tier,
@@ -128,7 +126,6 @@ class TokenService
     /**
      * Verify and decode a JWT access token.
      *
-     * @param string $token
      * @return object Decoded token payload
      * @throws Exception
      */
@@ -191,7 +188,7 @@ class TokenService
         $keyPath = config('auth.jwt_public_key_path', 'storage/keys/public.key');
         $fullPath = storage_path(str_replace('storage/', '', $keyPath));
 
-        if (!file_exists($fullPath)) {
+        if (! file_exists($fullPath)) {
             throw new Exception('Public key not found. Generate keys first.');
         }
 
@@ -216,7 +213,7 @@ class TokenService
 
         // Store keys
         $keyDir = storage_path('keys');
-        if (!is_dir($keyDir)) {
+        if (! is_dir($keyDir)) {
             mkdir($keyDir, 0755, true);
         }
 
@@ -248,7 +245,7 @@ class TokenService
     protected function parseTtl(string $ttl): int
     {
         if (preg_match('/^(\d+)([mhd])$/', $ttl, $matches)) {
-            $value = (int)$matches[1];
+            $value = (int) $matches[1];
             $unit = $matches[2];
 
             return match ($unit) {

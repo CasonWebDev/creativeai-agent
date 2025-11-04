@@ -5,11 +5,10 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Models\User;
-use App\Models\PasswordReset;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Mail\Message;
 
-class EmailService
+final class EmailService
 {
     /**
      * Send email confirmation email.
@@ -138,7 +137,6 @@ class EmailService
      *
      * @param User $user
      * @param array $sessionInfo
-     * @return void
      */
     public function sendSessionAlert(User $user, array $sessionInfo): void
     {
@@ -149,7 +147,7 @@ class EmailService
                     'sessionInfo' => $sessionInfo,
                     'manageUrl' => config('app.frontend_url') . '/settings/sessions',
                 ])->render(),
-                function (Message $message) use ($user) {
+                function (Message $message) use ($user): void {
                     $message->to($user->email)
                         ->subject('New Login to Your Account');
                 }
