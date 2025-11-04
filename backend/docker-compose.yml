@@ -20,8 +20,8 @@ services:
       - MAIL_HOST=mailhog
       - MAIL_PORT=1025
     volumes:
-      - ./backend:/app
-      - ./backend/storage:/app/storage
+      - .:/app
+      - ./storage:/app/storage
     ports:
       - "9000:9000"
     depends_on:
@@ -99,7 +99,7 @@ services:
     container_name: creativeai-nginx
     restart: unless-stopped
     volumes:
-      - ./backend:/app
+      - .:/app
       - ./docker/nginx.conf:/etc/nginx/conf.d/default.conf:ro
     ports:
       - "8000:80"

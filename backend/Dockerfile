@@ -29,14 +29,14 @@ COPY --from=composer:2.6 /usr/bin/composer /usr/bin/composer
 # Set working directory
 WORKDIR /app
 
-# Copy composer files from backend directory
-COPY backend/composer.json backend/composer.lock* ./
+# Copy composer files
+COPY composer.json composer.lock* ./
 
 # Install dependencies
 RUN composer install --no-dev --optimize-autoloader --no-scripts 2>&1
 
-# Copy backend application code
-COPY backend/ .
+# Copy application code
+COPY . .
 
 # Generate Laravel key and optimize
 RUN php artisan key:generate --force 2>/dev/null || true && \

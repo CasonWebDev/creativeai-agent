@@ -1,7 +1,69 @@
-vendor/
-node_modules/
+# Laravel
+/vendor/
+/node_modules/
+/public/hot
+/public/storage
+/storage/*.key
+/bootstrap/cache/
 .env
+.env.backup
 .env.*.php
 .phpunit.result.cache
+Homestead.json
+Homestead.yaml
+npm-debug.log
+yarn-error.log
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+*.sublime-*
+
+# Testing
+/coverage/
+.phpunit.xml
+phpunit.xml
+.phpstorm.meta.php
+_ide_helper.php
+
+# Build
+/build/
+/dist/
+*.zip
+
+# OS
+.DS_Store
+Thumbs.db
+*.tmp
+
+# Local development
+.env.local
+.env.testing.local
+docker.env
 storage/logs/*.log
-bootstrap/cache/
+
+# Database
+*.sqlite
+*.sqlite3
+
+# Composer
+composer.lock
+composer.phar
+
+# Node (if used for frontend assets)
+node_modules/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Misc
+*.pid
+*.seed
+.env*.local
+.cache/
+.eslintcache
