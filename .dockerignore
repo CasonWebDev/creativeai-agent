@@ -1,0 +1,55 @@
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# IDE
+.vscode/
+.idea/
+*.sublime-*
+.code-workspace
+
+# Documentation
+README.md
+*.md
+docs/
+.github/
+
+# Node (frontend)
+node_modules/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+npm-debug.log
+yarn-error.log
+
+# Testing
+.phpunit.result.cache
+/tests/
+.phpunit.xml
+phpunit.xml
+/coverage/
+.phpstorm.meta.php
+
+# Build artifacts
+/build/
+/dist/
+
+# OS
+.DS_Store
+Thumbs.db
+*.tmp
+*.swp
+*.swo
+
+# Local development
+docker.env
+docker-compose.local.yml
+.env.local
+storage/logs/*.log
+
+# Misc
+.cache/
+*.pid
+.eslintcache
+Makefile
