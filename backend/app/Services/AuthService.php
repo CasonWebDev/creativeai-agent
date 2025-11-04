@@ -182,7 +182,7 @@ class AuthService
         $errors = [];
 
         // Email validation
-        if (empty($data['email'])) {
+        if (($data['email'] ?? '') === '') {
             $errors['email'] = 'Email is required.';
         } elseif (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
             $errors['email'] = 'Email must be valid.';
@@ -193,14 +193,14 @@ class AuthService
         }
 
         // Name validation
-        if (empty($data['name'])) {
+        if (($data['name'] ?? '') === '') {
             $errors['name'] = 'Name is required.';
         } elseif (strlen($data['name']) > 255) {
             $errors['name'] = 'Name cannot exceed 255 characters.';
         }
 
         // Password validation
-        if (empty($data['password'])) {
+        if (($data['password'] ?? '') === '') {
             $errors['password'] = 'Password is required.';
         } elseif (strlen($data['password']) < 8) {
             $errors['password'] = 'Password must be at least 8 characters.';
@@ -212,7 +212,7 @@ class AuthService
             $errors['password'] = 'Password must contain a number.';
         }
 
-        if (!empty($errors)) {
+        if ($errors !== []) {
             throw ValidationException::withMessages($errors);
         }
     }

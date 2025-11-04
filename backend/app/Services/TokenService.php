@@ -65,11 +65,10 @@ class TokenService
      * Refresh an access token using a refresh token.
      *
      * @param string $refreshToken Plain text refresh token
-     * @param string $ipAddress Client IP address
      * @return array New access token and updated session info
      * @throws Exception
      */
-    public function refreshAccessToken(string $refreshToken, string $ipAddress): array
+    public function refreshAccessToken(string $refreshToken): array
     {
         $refreshTokenHash = hash('sha256', $refreshToken);
 
@@ -237,10 +236,9 @@ class TokenService
     /**
      * Generate a refresh token.
      *
-     * @param int $userId
      * @return string Random refresh token
      */
-    protected function generateRefreshToken(int $userId): string
+    protected function generateRefreshToken(): string
     {
         return bin2hex(random_bytes(32));
     }

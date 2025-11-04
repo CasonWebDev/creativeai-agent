@@ -45,10 +45,10 @@ class EmailService
      * Send password reset email.
      *
      * @param User $user
-     * @param PasswordReset $resetRequest
      * @return void
+     * @deprecated Use sendPasswordResetEmail instead
      */
-    public function sendPasswordReset(User $user, PasswordReset $resetRequest): void
+    public function sendPasswordReset(User $user): void
     {
         try {
             // Retrieve the plain token (we only have the hash in DB)

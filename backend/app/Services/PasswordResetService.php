@@ -11,7 +11,7 @@ use Illuminate\Validation\ValidationException;
 
 class PasswordResetService
 {
-    const RESET_TOKEN_EXPIRATION = 30; // minutes
+    public const RESET_TOKEN_EXPIRATION = 30; // minutes
 
     /**
      * Request a password reset.
@@ -205,7 +205,7 @@ class PasswordResetService
     {
         $errors = [];
 
-        if (empty($password)) {
+        if ($password === '') {
             $errors['password'] = 'Password is required.';
         } elseif (strlen($password) < 8) {
             $errors['password'] = 'Password must be at least 8 characters.';
@@ -217,7 +217,7 @@ class PasswordResetService
             $errors['password'] = 'Password must contain a number.';
         }
 
-        if (!empty($errors)) {
+        if ($errors !== []) {
             throw ValidationException::withMessages($errors);
         }
     }

@@ -1,9 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\V1\AuthController;
 
-Route::prefix('v1')->group(function () {
+Route::prefix('v1')->group(function (): void {
     // Health check endpoint
     Route::get('/health', function () {
         return response()->json([
@@ -14,7 +16,7 @@ Route::prefix('v1')->group(function () {
     })->name('health');
 
     // Public authentication routes
-    Route::prefix('auth')->group(function () {
+    Route::prefix('auth')->group(function (): void {
         // Registration and confirmation
         Route::post('/register', [AuthController::class, 'register'])->name('auth.register');
         Route::post('/confirm-email', [AuthController::class, 'confirmEmail'])->name('auth.confirmEmail');
@@ -30,9 +32,9 @@ Route::prefix('v1')->group(function () {
     });
 
     // Protected routes (require JWT authentication)
-    Route::middleware(\App\Http\Middleware\JwtMiddleware::class)->group(function () {
+    Route::middleware(\App\Http\Middleware\JwtMiddleware::class)->group(function (): void {
         // Auth routes
-        Route::prefix('auth')->group(function () {
+        Route::prefix('auth')->group(function (): void {
             Route::post('/logout', [AuthController::class, 'logout'])->name('auth.logout');
             Route::get('/me', [AuthController::class, 'me'])->name('auth.me');
         });

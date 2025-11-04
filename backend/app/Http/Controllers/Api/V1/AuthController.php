@@ -137,7 +137,7 @@ class AuthController extends Controller
             ];
 
             // Validate credentials
-            if (empty($credentials['email']) || empty($credentials['password'])) {
+            if (($credentials['email'] ?? '') === '' || ($credentials['password'] ?? '') === '') {
                 throw ValidationException::withMessages([
                     'email' => 'Email and password are required.',
                 ]);
@@ -196,10 +196,7 @@ class AuthController extends Controller
                 throw new \Exception('Refresh token is required.');
             }
 
-            $result = $this->tokenService->refreshAccessToken(
-                $refreshToken,
-                $request->ip()
-            );
+            $result = $this->tokenService->refreshAccessToken($refreshToken);
 
             return response()->json([
                 'success' => true,
@@ -290,7 +287,7 @@ class AuthController extends Controller
         try {
             $email = $request->input('email');
 
-            if (empty($email)) {
+            if (($email ?? '') === '') {
                 throw ValidationException::withMessages([
                     'email' => 'Email is required.',
                 ]);
@@ -339,7 +336,7 @@ class AuthController extends Controller
         try {
             $token = $request->input('token');
 
-            if (empty($token)) {
+            if (($token ?? '') === '') {
                 throw ValidationException::withMessages([
                     'token' => 'Reset token is required.',
                 ]);
@@ -380,13 +377,13 @@ class AuthController extends Controller
             $token = $request->input('token');
             $password = $request->input('password');
 
-            if (empty($token)) {
+            if (($token ?? '') === '') {
                 throw ValidationException::withMessages([
                     'token' => 'Reset token is required.',
                 ]);
             }
 
-            if (empty($password)) {
+            if (($password ?? '') === '') {
                 throw ValidationException::withMessages([
                     'password' => 'Password is required.',
                 ]);
