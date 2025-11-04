@@ -41,7 +41,8 @@ An existing user logs in with email and password, receives JWT tokens, and can m
 4. **Given** user has an active session and the access token expires, **When** they make an API request, **Then** the refresh token is used to automatically obtain a new access token and the request is retried transparently.
 5. **Given** user enters invalid credentials, **When** they submit the login form, **Then** they see a clear error message (e.g., "Invalid email or password") and remain on the login page.
 6. **Given** user's email is unverified, **When** they log in, **Then** they are redirected to the email verification page instead of the dashboard.
-7. **Given** user has checked "Remember me" during login, **When** they close and reopen the browser, **Then** they remain logged in (optional based on session storage choice).
+
+*Note: "Remember Me" functionality is deferred to future releases (see Out of Scope).*
 
 ---
 
@@ -189,6 +190,8 @@ A logged-in user can request to delete their account, which schedules soft delet
 5. **Given** user clicks "Cancel Deletion" before 30 days expire, **When** they confirm, **Then** the deletion is cancelled and their account is restored to normal status.
 6. **Given** 30-day grace period has elapsed, **When** the scheduled task runs, **Then** the account and all associated data are permanently deleted.
 
+**Note on Grace Period**: During the 30-day grace period, the user's account and sessions remain fully functional. They can log in, use all features normally, and access their data. Only after the 30-day period expires is the account permanently deleted.
+
 ---
 
 ### Edge Cases
@@ -217,7 +220,7 @@ A logged-in user can request to delete their account, which schedules soft delet
 - **FR-003**: System MUST send a verification email with a unique token link upon successful registration
 - **FR-004**: System MUST mark user account as verified when the verification token link is clicked and is valid
 - **FR-005**: System MUST support account login with email and password, returning JWT access and refresh tokens
-- **FR-006**: System MUST store access token in application state (memory) and refresh token in secure storage (localStorage or sessionStorage)
+- **FR-006**: System MUST store access token exclusively in application state (memory) and refresh token in secure storage (localStorage or sessionStorage). Access token must never be persisted to prevent XSS exposure.
 - **FR-007**: System MUST automatically refresh expired access tokens using the refresh token without user interaction
 - **FR-008**: System MUST implement request/response interceptors to attach access token to all API requests and handle 401 responses
 - **FR-009**: System MUST retry failed requests exactly once after successful token refresh (max 1 retry)
@@ -278,7 +281,7 @@ A logged-in user can request to delete their account, which schedules soft delet
 - **FR-043**: System MUST display success/error toast notifications for all authentication actions
 - **FR-044**: System MUST sanitize user input before sending to API
 - **FR-045**: System MUST be fully responsive and mobile-first (minimum touch targets 44x44px)
-- **FR-046**: System MUST implement rate limiting on the client side to prevent abuse (e.g., max 3 login attempts per minute)
+- **FR-046**: System MUST implement client-side rate limiting on login attempts using localStorage to track attempts (e.g., max 3 login attempts per minute globally per browser). Rate limit counter persists across page reloads to prevent bypass.
 
 **Responsive Layout & Architecture**
 
@@ -352,7 +355,7 @@ A logged-in user can request to delete their account, which schedules soft delet
 19. **Zod for validation**: Client-side form validation uses Zod schemas
 20. **Shadcn/ui components**: UI components come from shadcn/ui library (already available in project)
 21. **Tailwind CSS**: Styling uses Tailwind CSS (available in project)
-22. **localStorage/sessionStorage**: Tokens are stored in browser storage; access token can optionally use memory-only strategy
+22. **Token storage strategy**: Access token is stored exclusively in memory (application state); refresh token is stored in localStorage/sessionStorage. This prevents XSS attacks on access token and requires session rehydration on page reload via GET /auth/me endpoint.
 23. **Environment variables**: API URL configured via NEXT_PUBLIC_API_URL environment variable
 
 ---
@@ -377,9 +380,21 @@ A logged-in user can request to delete their account, which schedules soft delet
 - Biometric authentication
 - Single Sign-On (SSO) across multiple applications
 - SMS-based authentication
+- "Remember Me" / "Stay logged in" feature (deferred to future release)
 - Email templates customization (backend responsibility)
 - Custom password complexity rules (backend determines rules)
 - Advanced analytics/audit logging (covered separately if needed)
+
+---
+
+## Clarifications
+
+### Session 2025-11-04
+
+- Q1: Should access token be always stored in memory only, or can it be persisted in localStorage? → A: Access token MUST be stored in memory only (more secure, prevents XSS exposure via localStorage). Refresh token persisted in secure storage. Session rehydrated on page reload via GET /auth/me.
+- Q2: Can user still make API requests during 30-day account deletion grace period? → A: Yes, sessions remain fully valid during grace period. User can log in and use account normally; cancelling deletion restores everything. Provides better UX and data recovery opportunity.
+- Q3: Should "Remember Me" feature be implemented in MVP? → B: Defer to future. Remove from MVP scope to simplify initial implementation. Sessions use sessionStorage only (user logged out when browser closes). Can be added later as optional enhancement.
+- Q4: How should client-side rate limiting be implemented? → B: localStorage-based rate limiting (global per browser, persists across page reloads). Prevents users from bypassing limits by refreshing or opening new tabs. Complements backend rate limiting.
 
 ---
 
