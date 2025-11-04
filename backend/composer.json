@@ -5,11 +5,12 @@
     "license": "proprietary",
     "require": {
         "php": "^8.2",
+        "firebase/php-jwt": "^6.10",
+        "guzzlehttp/guzzle": "^7.8",
         "laravel/framework": "^11.0",
         "laravel/sanctum": "^4.0",
-        "firebase/php-jwt": "^6.10",
         "predis/predis": "^2.2",
-        "guzzlehttp/guzzle": "^7.8"
+        "zircote/swagger-php": "^5.5"
     },
     "require-dev": {
         "laravel/pint": "^1.15",

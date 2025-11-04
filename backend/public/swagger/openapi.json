@@ -1,0 +1,260 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "CreativeAI Agent API",
+    "version": "1.0.0",
+    "description": "RESTful API for CreativeAI Agent - User Authentication, Email Verification, and Password Management",
+    "contact": {
+      "name": "CreativeAI Support",
+      "email": "support@creativeai.com"
+    },
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/licenses/MIT"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8000",
+      "description": "Development Server"
+    },
+    {
+      "url": "https://api.creativeai.com",
+      "description": "Production Server"
+    }
+  ],
+  "paths": {
+    "/api/v1/auth/register": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Register a new user",
+        "description": "Create a new user account with email and password",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["name", "email", "password"],
+                "properties": {
+                  "name": {"type": "string", "example": "John Doe"},
+                  "email": {"type": "string", "format": "email", "example": "john@example.com"},
+                  "password": {"type": "string", "format": "password", "example": "SecurePass123!"},
+                  "tier": {"type": "string", "example": "free"}
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {"description": "User registered successfully"},
+          "422": {"description": "Validation error", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ErrorResponse"}}}}
+        }
+      }
+    },
+    "/api/v1/auth/confirm-email": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Confirm user email",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["token"],
+                "properties": {
+                  "token": {"type": "string"}
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {"description": "Email confirmed successfully"},
+          "422": {"description": "Invalid token", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ErrorResponse"}}}}
+        }
+      }
+    },
+    "/api/v1/auth/login": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "User login",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["email", "password"],
+                "properties": {
+                  "email": {"type": "string", "format": "email"},
+                  "password": {"type": "string", "format": "password"},
+                  "device_remember": {"type": "boolean"},
+                  "browser_name": {"type": "string"},
+                  "os_name": {"type": "string"}
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {"description": "Login successful"},
+          "401": {"description": "Invalid credentials", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ErrorResponse"}}}}
+        }
+      }
+    },
+    "/api/v1/auth/refresh": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Refresh access token",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["refresh_token"],
+                "properties": {
+                  "refresh_token": {"type": "string"}
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {"description": "Token refreshed successfully"},
+          "401": {"description": "Invalid refresh token", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ErrorResponse"}}}}
+        }
+      }
+    },
+    "/api/v1/auth/logout": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "User logout",
+        "security": [{"BearerToken": []}],
+        "responses": {
+          "200": {"description": "Logout successful"},
+          "401": {"description": "Unauthorized", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ErrorResponse"}}}}
+        }
+      }
+    },
+    "/api/v1/auth/me": {
+      "get": {
+        "tags": ["Authentication"],
+        "summary": "Get current user",
+        "security": [{"BearerToken": []}],
+        "responses": {
+          "200": {"description": "Current user information"},
+          "401": {"description": "Unauthorized", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ErrorResponse"}}}}
+        }
+      }
+    },
+    "/api/v1/auth/forgot-password": {
+      "post": {
+        "tags": ["Password Reset"],
+        "summary": "Request password reset",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["email"],
+                "properties": {
+                  "email": {"type": "string", "format": "email"}
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {"description": "Reset link sent to email"},
+          "422": {"description": "Validation error", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ErrorResponse"}}}}
+        }
+      }
+    },
+    "/api/v1/auth/verify-reset-token": {
+      "post": {
+        "tags": ["Password Reset"],
+        "summary": "Verify password reset token",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["token"],
+                "properties": {
+                  "token": {"type": "string"}
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {"description": "Token is valid"},
+          "422": {"description": "Invalid token", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ErrorResponse"}}}}
+        }
+      }
+    },
+    "/api/v1/auth/reset-password": {
+      "post": {
+        "tags": ["Password Reset"],
+        "summary": "Reset password",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["token", "password"],
+                "properties": {
+                  "token": {"type": "string"},
+                  "password": {"type": "string", "format": "password"}
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {"description": "Password reset successful"},
+          "422": {"description": "Validation error", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ErrorResponse"}}}}
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {"type": "integer"},
+          "name": {"type": "string"},
+          "email": {"type": "string"},
+          "tier": {"type": "string"},
+          "email_confirmed_at": {"type": "string", "format": "date-time", "nullable": true},
+          "last_login_at": {"type": "string", "format": "date-time", "nullable": true},
+          "created_at": {"type": "string", "format": "date-time"},
+          "updated_at": {"type": "string", "format": "date-time"}
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "success": {"type": "boolean"},
+          "message": {"type": "string"},
+          "errors": {"type": "object"}
+        }
+      }
+    },
+    "securitySchemes": {
+      "BearerToken": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "JWT Bearer Token"
+      }
+    }
+  }
+}
