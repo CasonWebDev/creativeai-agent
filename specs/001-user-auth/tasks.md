@@ -94,20 +94,20 @@ Result:    Complete MVP in 1-2 weeks with 3-person team
 
 ### Environment & Docker Setup
 
-- [ ] T001 Create `.env.example` with required vars: DB_HOST, DB_USER, REDIS_HOST, JWT_SECRET, MAIL_DRIVER
-- [ ] T002 Create Dockerfile with multi-stage build: base PHP 8.2, composer dependencies, production-optimized
-- [ ] T003 [P] Create `docker-compose.yml` with 4 services: Laravel app, PostgreSQL 15, Redis 7, Mailhog
-- [ ] T004 [P] Create `.dockerignore` excluding vendor, node_modules, .git, storage/logs
+- [x] T001 Create `.env.example` with required vars: DB_HOST, DB_USER, REDIS_HOST, JWT_SECRET, MAIL_DRIVER
+- [x] T002 Create Dockerfile with multi-stage build: base PHP 8.2, composer dependencies, production-optimized
+- [x] T003 [P] Create `docker-compose.yml` with 4 services: Laravel app, PostgreSQL 15, Redis 7, Mailhog
+- [x] T004 [P] Create `.dockerignore` excluding vendor, node_modules, .git, storage/logs
 - [ ] T005 Configure GitHub Actions workflow for CI/CD: tests, linting, Docker build (`.github/workflows/ci.yml`)
 
 ### Laravel Project Initialization
 
-- [ ] T006 Initialize Laravel 11 project with `composer create-project laravel/laravel:^11`
-- [ ] T007 [P] Install required packages: `laravel/sanctum`, `firebase/php-jwt`, `predis/predis`
-- [ ] T008 [P] Generate application key with `php artisan key:generate`
-- [ ] T009 Configure `.env`: Database, Redis, Mail (Mailhog), JWT settings from `.env.example`
+- [x] T006 Initialize Laravel 11 project with `composer create-project laravel/laravel:^11`
+- [x] T007 [P] Install required packages: `laravel/sanctum`, `firebase/php-jwt`, `predis/predis`
+- [x] T008 [P] Generate application key with `php artisan key:generate`
+- [x] T009 Configure `.env`: Database, Redis, Mail (Mailhog), JWT settings from `.env.example`
 
-**Checkpoint**: Docker environment ready, Laravel project initialized, dependencies installed. Proceed to Phase 2.
+**Checkpoint**: ✅ Docker environment ready, Laravel project initialized, dependencies installed. Proceed to Phase 2.
 
 ---
 
