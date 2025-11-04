@@ -114,4 +114,19 @@ return [
 
     'password_timeout' => 10800,
 
+    /*
+    |--------------------------------------------------------------------------
+    | JWT Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Configure JWT token generation and validation settings
+    |
+    */
+
+    'jwt_algorithm' => env('JWT_ALGORITHM', 'RS256'),
+    'jwt_access_token_ttl' => env('JWT_ACCESS_TOKEN_TTL', '15m'),
+    'jwt_refresh_token_ttl' => env('JWT_REFRESH_TOKEN_TTL', '30d'),
+    'jwt_private_key_path' => env('JWT_PRIVATE_KEY_PATH', 'storage/keys/private.key'),
+    'jwt_public_key_path' => env('JWT_PUBLIC_KEY_PATH', 'storage/keys/public.key'),
+
 ];

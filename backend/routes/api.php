@@ -1,8 +1,9 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\V1\AuthController;
 
-Route::prefix('api/v1')->group(function () {
+Route::prefix('v1')->group(function () {
     // Health check endpoint
     Route::get('/health', function () {
         return response()->json([
@@ -12,22 +13,28 @@ Route::prefix('api/v1')->group(function () {
         ]);
     })->name('health');
 
-    // Authentication routes (will be implemented in Phase 3+)
+    // Public authentication routes
     Route::prefix('auth')->group(function () {
         // Registration and confirmation
-        // POST /api/v1/auth/register
-        // POST /api/v1/auth/email-confirm
+        Route::post('/register', [AuthController::class, 'register'])->name('auth.register');
+        Route::post('/confirm-email', [AuthController::class, 'confirmEmail'])->name('auth.confirmEmail');
         
         // Login and token refresh
-        // POST /api/v1/auth/login
-        // POST /api/v1/auth/refresh
-        // POST /api/v1/auth/logout
+        Route::post('/login', [AuthController::class, 'login'])->name('auth.login');
+        Route::post('/refresh', [AuthController::class, 'refresh'])->name('auth.refresh');
     });
 
-    // Protected routes (require middleware)
-    Route::middleware('auth:sanctum')->group(function () {
-        // User endpoints
+    // Protected routes (require JWT authentication)
+    Route::middleware(\App\Http\Middleware\JwtMiddleware::class)->group(function () {
+        // Auth routes
+        Route::prefix('auth')->group(function () {
+            Route::post('/logout', [AuthController::class, 'logout'])->name('auth.logout');
+            Route::get('/me', [AuthController::class, 'me'])->name('auth.me');
+        });
+
+        // User endpoints (to be implemented)
         // GET /api/v1/users/profile
+
         // PUT /api/v1/users/profile
         
         // Session management

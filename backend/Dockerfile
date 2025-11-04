@@ -32,8 +32,8 @@ WORKDIR /app
 # Copy composer files
 COPY composer.json composer.lock* ./
 
-# Install dependencies
-RUN composer install --no-dev --optimize-autoloader --no-scripts 2>&1
+# Install dependencies (including dev for tinker, etc.)
+RUN composer install --optimize-autoloader --no-scripts 2>&1
 
 # Copy application code
 COPY . .
@@ -56,6 +56,7 @@ RUN apk add --no-cache \
     oniguruma-dev \
     libzip \
     oniguruma \
+    git \
     $PHPIZE_DEPS
 
 # Install PHP extensions
@@ -74,6 +75,9 @@ RUN pecl install redis && \
 
 # Clean up build dependencies (keep runtime libs)
 RUN apk del $PHPIZE_DEPS postgresql-dev libzip-dev oniguruma-dev
+
+# Copy composer from builder
+COPY --from=composer:2.6 /usr/bin/composer /usr/bin/composer
 
 # Create app user
 RUN addgroup -g 1000 appuser && \
