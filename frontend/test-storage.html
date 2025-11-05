@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Storage Test</title>
+</head>
+<body>
+    <h1>Storage Test</h1>
+    <button onclick="testStorage()">Test Storage</button>
+    <pre id="output"></pre>
+    
+    <script>
+        function testStorage() {
+            const output = document.getElementById('output');
+            
+            // Test writing
+            localStorage.setItem('test_token', 'test_value');
+            
+            // Test reading
+            const value = localStorage.getItem('test_token');
+            
+            // Check auth tokens
+            const refreshToken = localStorage.getItem('auth_refresh_token');
+            const accessToken = localStorage.getItem('auth_access_token');
+            
+            output.textContent = JSON.stringify({
+                test: value,
+                hasRefreshToken: !!refreshToken,
+                hasAccessToken: !!accessToken,
+                refreshToken: refreshToken ? 'EXISTS' : 'MISSING',
+                accessToken: accessToken ? 'EXISTS' : 'MISSING'
+            }, null, 2);
+        }
+        
+        // Auto-run on load
+        testStorage();
+    </script>
+</body>
+</html>

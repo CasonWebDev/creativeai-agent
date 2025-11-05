@@ -12,6 +12,8 @@ final class Session extends Model
 {
     use HasFactory;
 
+    protected $table = 'refresh_tokens';
+
     public const UPDATED_AT = null;
 
     /**

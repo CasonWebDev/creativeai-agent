@@ -19,14 +19,16 @@ final class EmailService
     public function sendEmailConfirmation(User $user, string $confirmationToken): void
     {
         try {
-            $confirmationUrl = config('app.frontend_url') . '/auth/confirm-email?token=' . urlencode($confirmationToken);
+            $confirmationUrl = config('app.frontend_url') . '/verify-email?token=' . urlencode($confirmationToken);
+
+            $htmlContent = view('emails.confirm-email-html', [
+                'user' => $user,
+                'confirmationUrl' => $confirmationUrl,
+                'expiresIn' => '1 hour',
+            ])->render();
 
             Mail::html(
-                view('emails.confirm-email', [
-                    'user' => $user,
-                    'confirmationUrl' => $confirmationUrl,
-                    'expiresIn' => '1 hour',
-                ])->render(),
+                $htmlContent,
                 function (Message $message) use ($user): void {
                     $message->to($user->email)
                         ->subject('Confirm Your Email Address');
@@ -55,14 +57,16 @@ final class EmailService
             // For now, we'll generate a new one here
             $resetToken = bin2hex(random_bytes(32));
 
-            $resetUrl = config('app.frontend_url') . '/auth/reset-password?token=' . urlencode($resetToken);
+            $resetUrl = config('app.frontend_url') . '/reset-password?token=' . urlencode($resetToken);
+
+            $htmlContent = view('emails.reset-password-html', [
+                'user' => $user,
+                'resetUrl' => $resetUrl,
+                'expiresIn' => '1 hour',
+            ])->render();
 
             Mail::html(
-                view('emails.reset-password', [
-                    'user' => $user,
-                    'resetUrl' => $resetUrl,
-                    'expiresIn' => '1 hour',
-                ])->render(),
+                $htmlContent,
                 function (Message $message) use ($user): void {
                     $message->to($user->email)
                         ->subject('Reset Your Password');
@@ -85,14 +89,16 @@ final class EmailService
     public function sendPasswordResetEmail(User $user, string $plainToken): void
     {
         try {
-            $resetUrl = config('app.frontend_url') . '/auth/reset-password?token=' . urlencode($plainToken);
+            $resetUrl = config('app.frontend_url') . '/reset-password?token=' . urlencode($plainToken);
+
+            $htmlContent = view('emails.reset-password-html', [
+                'user' => $user,
+                'resetUrl' => $resetUrl,
+                'expiresIn' => '30 minutes',
+            ])->render();
 
             Mail::html(
-                view('emails.reset-password', [
-                    'user' => $user,
-                    'resetUrl' => $resetUrl,
-                    'expiresIn' => '30 minutes',
-                ])->render(),
+                $htmlContent,
                 function (Message $message) use ($user): void {
                     $message->to($user->email)
                         ->subject('Reset Your Password');
@@ -114,11 +120,13 @@ final class EmailService
     public function sendWelcome(User $user): void
     {
         try {
+            $htmlContent = view('emails.welcome', [
+                'user' => $user,
+                'dashboardUrl' => config('app.frontend_url') . '/dashboard',
+            ])->render();
+
             Mail::html(
-                view('emails.welcome', [
-                    'user' => $user,
-                    'dashboardUrl' => config('app.frontend_url') . '/dashboard',
-                ])->render(),
+                $htmlContent,
                 function (Message $message) use ($user): void {
                     $message->to($user->email)
                         ->subject('Welcome to CreativeAI Agent!');
@@ -141,12 +149,14 @@ final class EmailService
     public function sendSessionAlert(User $user, array $sessionInfo): void
     {
         try {
+            $htmlContent = view('emails.session-alert', [
+                'user' => $user,
+                'sessionInfo' => $sessionInfo,
+                'manageUrl' => config('app.frontend_url') . '/dashboard/sessions',
+            ])->render();
+
             Mail::html(
-                view('emails.session-alert', [
-                    'user' => $user,
-                    'sessionInfo' => $sessionInfo,
-                    'manageUrl' => config('app.frontend_url') . '/settings/sessions',
-                ])->render(),
+                $htmlContent,
                 function (Message $message) use ($user): void {
                     $message->to($user->email)
                         ->subject('New Login to Your Account');

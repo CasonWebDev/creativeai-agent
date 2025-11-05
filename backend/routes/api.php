@@ -22,6 +22,8 @@ Route::prefix('v1')->group(function (): void {
             ->name('auth.register');
         Route::post('/confirm-email', [AuthController::class, 'confirmEmail'])
             ->name('auth.confirmEmail');
+        Route::post('/resend-verification-email', [AuthController::class, 'resendVerificationEmail'])
+            ->name('auth.resendVerificationEmail');
 
         // Login and token refresh
         Route::post('/login', [AuthController::class, 'login'])

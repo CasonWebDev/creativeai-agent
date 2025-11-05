@@ -1,10 +1,21 @@
 "use client"
 
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { LayoutDashboard, FolderOpen, ImageIcon, BarChart3, Settings, Sparkles, Plus } from "lucide-react"
+import { LayoutDashboard, FolderOpen, ImageIcon, BarChart3, Settings, Sparkles, Plus, LogOut, User, ChevronDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { useAuth } from "@/lib/context/AuthContext"
+import { useToast } from "@/hooks/use-toast"
+import { useState } from "react"
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
@@ -16,6 +27,41 @@ const navigation = [
 
 export function AppSidebar() {
   const pathname = usePathname()
+  const router = useRouter()
+  const { state, logout } = useAuth()
+  const { toast } = useToast()
+  const [isLoggingOut, setIsLoggingOut] = useState(false)
+
+  const handleLogout = async () => {
+    try {
+      setIsLoggingOut(true)
+      await logout()
+      toast({
+        title: "Sessão encerrada",
+        description: "Você foi desconectado com sucesso.",
+      })
+      router.push('/login')
+    } catch (error) {
+      console.error('Logout error:', error)
+      toast({
+        title: "Erro ao sair",
+        description: "Ocorreu um erro ao encerrar a sessão.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsLoggingOut(false)
+    }
+  }
+
+  // Get user initials for avatar
+  const getUserInitials = () => {
+    if (!state.user?.name) return 'U'
+    const names = state.user.name.split(' ')
+    if (names.length >= 2) {
+      return `${names[0][0]}${names[1][0]}`.toUpperCase()
+    }
+    return state.user.name.substring(0, 2).toUpperCase()
+  }
 
   return (
     <div className="flex h-full w-64 flex-col border-r bg-muted/30">
@@ -59,15 +105,59 @@ export function AppSidebar() {
 
       {/* User Section */}
       <div className="border-t p-4">
-        <div className="flex items-center gap-3">
-          <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
-            <span className="text-sm font-medium">AG</span>
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="text-sm font-medium truncate">Agência Demo</div>
-            <div className="text-xs text-muted-foreground truncate">Professional Plan</div>
-          </div>
-        </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button 
+              className="flex items-center gap-3 w-full rounded-lg px-2 py-2 hover:bg-muted transition-colors"
+              disabled={isLoggingOut}
+            >
+              <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                <span className="text-sm font-medium">{getUserInitials()}</span>
+              </div>
+              <div className="flex-1 min-w-0 text-left">
+                <div className="text-sm font-medium truncate">
+                  {state.user?.name || 'User'}
+                </div>
+                <div className="text-xs text-muted-foreground truncate">
+                  Professional Plan
+                </div>
+              </div>
+              <ChevronDown className="h-4 w-4 text-muted-foreground flex-shrink-0" aria-hidden="true" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuLabel>
+              <div className="flex flex-col space-y-1">
+                <p className="text-sm font-medium leading-none">{state.user?.name || 'User'}</p>
+                <p className="text-xs leading-none text-muted-foreground">
+                  {state.user?.email || ''}
+                </p>
+              </div>
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild>
+              <Link href="/dashboard/settings" className="cursor-pointer">
+                <User className="mr-2 h-4 w-4" />
+                Perfil
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link href="/dashboard/settings" className="cursor-pointer">
+                <Settings className="mr-2 h-4 w-4" />
+                Configurações
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem 
+              onClick={handleLogout}
+              disabled={isLoggingOut}
+              className="cursor-pointer text-red-600 focus:text-red-600"
+            >
+              <LogOut className="mr-2 h-4 w-4" />
+              {isLoggingOut ? 'Saindo...' : 'Sair'}
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </div>
   )

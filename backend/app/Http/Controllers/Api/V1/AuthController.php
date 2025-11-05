@@ -418,4 +418,68 @@ final class AuthController extends Controller
             ], 422);
         }
     }
+
+    /**
+     * Resend email verification email to a user.
+     *
+     * POST /api/v1/auth/resend-verification-email
+     */
+    public function resendVerificationEmail(Request $request): JsonResponse
+    {
+        try {
+            $email = $request->input('email');
+
+            if (($email ?? '') === '') {
+                throw ValidationException::withMessages([
+                    'email' => 'Email is required.',
+                ]);
+            }
+
+            $user = \App\Models\User::where('email', strtolower($email))->firstOrFail();
+
+            // Check if already verified
+            if ($user->email_confirmed_at) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'This email is already verified.',
+                ], 422);
+            }
+
+            // Delete any existing confirmation records
+            \App\Models\EmailConfirmation::where('user_id', $user->id)->delete();
+
+            // Generate new email confirmation token
+            $token = \Illuminate\Support\Str::random(64);
+            \App\Models\EmailConfirmation::create([
+                'user_id' => $user->id,
+                'email' => $user->email,
+                'token_hash' => hash('sha256', $token),
+                'expires_at' => now()->addHour(),
+            ]);
+
+            // Send verification email
+            $this->emailService->sendEmailConfirmation($user, $token);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Verification email sent successfully. Please check your inbox.',
+            ], 200);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User not found.',
+            ], 404);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed.',
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to resend verification email: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
 }

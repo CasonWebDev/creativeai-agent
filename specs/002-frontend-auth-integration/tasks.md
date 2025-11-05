@@ -30,13 +30,13 @@
 
 **Purpose**: Project structure and environment configuration
 
-- [ ] T001 Create project structure per implementation plan in `frontend/`
-- [ ] T002 [P] Verify Next.js 16, React 19, TypeScript installed via `package.json`
-- [ ] T003 [P] Verify Axios, Zod, Shadcn/ui, Tailwind CSS in dependencies via `package.json`
-- [ ] T004 Create `.env.local` with `NEXT_PUBLIC_API_URL=http://localhost:8000/api/v1` for development
-- [ ] T005 Create `.env.example` documenting required environment variables
+- [x] T001 Create project structure per implementation plan in `frontend/`
+- [x] T002 [P] Verify Next.js 16, React 19, TypeScript installed via `package.json`
+- [x] T003 [P] Verify Axios, Zod, Shadcn/ui, Tailwind CSS in dependencies via `package.json`
+- [x] T004 Create `.env.local` with `NEXT_PUBLIC_API_URL=http://localhost:8000/api/v1` for development
+- [x] T005 Create `.env.example` documenting required environment variables
 
-**Checkpoint**: Project initialized, dependencies available, environment configured
+**Checkpoint**: ✅ Project initialized, dependencies available, environment configured
 
 ---
 
@@ -48,15 +48,15 @@
 
 ### API Client & Interceptors
 
-- [ ] T006 Create Axios client instance in `frontend/lib/api/client.ts` with baseURL from `NEXT_PUBLIC_API_URL`
-- [ ] T007 [P] Create request interceptor in `frontend/lib/api/interceptors.ts` to attach Authorization header with access token
-- [ ] T008 [P] Create response interceptor in `frontend/lib/api/interceptors.ts` to detect 401 responses and trigger token refresh
-- [ ] T009 Implement token refresh logic with request queuing in `frontend/lib/api/interceptors.ts` (queue concurrent requests, refresh once, retry all with new token)
-- [ ] T010 Create centralized error handler in `frontend/lib/api/error-handler.ts` for consistent error formatting and user messages
+- [x] T006 Create Axios client instance in `frontend/lib/api/client.ts` with baseURL from `NEXT_PUBLIC_API_URL`
+- [x] T007 [P] Create request interceptor in `frontend/lib/api/interceptors.ts` to attach Authorization header with access token
+- [x] T008 [P] Create response interceptor in `frontend/lib/api/interceptors.ts` to detect 401 responses and trigger token refresh
+- [x] T009 Implement token refresh logic with request queuing in `frontend/lib/api/interceptors.ts` (queue concurrent requests, refresh once, retry all with new token)
+- [x] T010 Create centralized error handler in `frontend/lib/api/error-handler.ts` for consistent error formatting and user messages
 
 ### Authentication API Endpoints
 
-- [ ] T011 Create auth API wrapper in `frontend/lib/api/auth.ts` with 14 endpoint functions:
+- [x] T011 Create auth API wrapper in `frontend/lib/api/auth.ts` with 14 endpoint functions:
   - POST `/auth/register` → `register()`
   - POST `/auth/login` → `login()`
   - POST `/auth/refresh` → `refreshToken()`
@@ -77,17 +77,17 @@
 
 ### Context API & State Management
 
-- [ ] T012 [P] Create auth types in `frontend/lib/types/auth.d.ts` with:
+- [x] T012 [P] Create auth types in `frontend/lib/types/auth.d.ts` with:
   - `User` (id, name, email, email_verified_at, avatar_url, plan, created_at, updated_at)
   - `AuthState` (user, isLoading, isAuthenticating, accessToken, isTokenRefreshing, error, isAuthenticated, emailVerified)
   - `ApiToken`, `Session` types for profile features
 
-- [ ] T013 Create AuthContext in `frontend/lib/context/AuthContext.tsx` with:
+- [x] T013 Create AuthContext in `frontend/lib/context/AuthContext.tsx` with:
   - State: user, accessToken, isLoading, isAuthenticating, isTokenRefreshing, error
   - Functions: login(), register(), logout(), refreshToken(), setUser()
   - useAuth hook for consuming context
 
-- [ ] T014 Create AuthProvider component in `frontend/lib/context/AuthProvider.tsx` that:
+- [x] T014 Create AuthProvider component in `frontend/lib/context/AuthProvider.tsx` that:
   - Wraps application
   - Restores session from refresh token on mount via GET `/auth/me`
   - Listens for token refresh events from interceptor
@@ -96,28 +96,28 @@
 
 ### Token & Utility Management
 
-- [ ] T015 [P] Create token utilities in `frontend/lib/utils/token.ts`:
+- [x] T015 [P] Create token utilities in `frontend/lib/utils/token.ts`:
   - `getRefreshToken()` - read from sessionStorage
   - `setRefreshToken(token, expiresAt)` - write to sessionStorage
   - `clearRefreshToken()` - remove from sessionStorage
   - `getRefreshTokenExpiration()` - check if expired
   - `isRefreshTokenExpired()` - boolean check
 
-- [ ] T016 [P] Create rate limiting utilities in `frontend/lib/utils/rate-limit.ts`:
+- [x] T016 [P] Create rate limiting utilities in `frontend/lib/utils/rate-limit.ts`:
   - `getRateLimitAttempts()` - read from localStorage `auth_attempt_tracker`
   - `incrementRateLimitAttempt()` - increment counter
   - `resetRateLimitAttempts()` - clear counter
   - `isRateLimited()` - check if > 3 attempts in 60 seconds
   - Implement 60-second reset window with timestamp
 
-- [ ] T017 [P] Create input sanitization utilities in `frontend/lib/utils/sanitize.ts`:
+- [x] T017 [P] Create input sanitization utilities in `frontend/lib/utils/sanitize.ts`:
   - `sanitizeEmail()` - trim, lowercase
   - `sanitizeText()` - remove HTML, trim whitespace
   - Apply to all user inputs before API submission
 
 ### Validation Schemas
 
-- [ ] T018 Create Zod validation schemas in `frontend/lib/validators/auth.schemas.ts`:
+- [x] T018 Create Zod validation schemas in `frontend/lib/validators/auth.schemas.ts`:
   - `registerSchema` - name (min 1, max 255), email, password (min 8, uppercase + lowercase + number)
   - `loginSchema` - email, password
   - `resetPasswordSchema` - password (min 8, uppercase + lowercase + number), confirmation
@@ -126,15 +126,23 @@
 
 ### Protected Routes Infrastructure
 
-- [ ] T019 Create route protection layout in `frontend/app/(dashboard)/layout.tsx` that:
-  - Checks `user` in AuthContext
-  - Redirects to `/auth/login` if not authenticated
-  - Shows loading state while restoring session
-  - Wraps `children` with header/sidebar
+- [x] T019 Add authentication protection to dashboard layout in `frontend/app/dashboard/layout.tsx`:
+  - Import and use `useAuth` hook from AuthContext
+  - Check if user is authenticated on mount
+  - Show loading state while checking authentication
+  - Redirect to `/login` if not authenticated
+  - Only render dashboard content (AppSidebar + AppHeader + children) if authenticated
+  - Note: Minimal changes to existing layout - only add auth check wrapper
 
-- [ ] T020 Verify root layout wraps app with `AuthProvider` in `frontend/app/layout.tsx` and applies theme provider
+- [x] T020 Verify root layout wraps app with `AuthProvider` in `frontend/app/layout.tsx` and applies theme provider
 
-**Checkpoint**: ✅ Foundation ready - token management, API client, interceptors, context, route protection all complete. User story implementation can now proceed in parallel.
+**Checkpoint**: ✅ Phase 2 COMPLETE - Foundation ready - token management, API client, interceptors, context, route protection all complete. User story implementation can now proceed in parallel.
+
+---
+
+## Phase 3-6: MVP User Stories (Priority: P1) - Can Run in Parallel ⚡
+
+**Starting Point**: All foundational infrastructure from Phase 2 complete - these phases are ready to parallelize
 
 ---
 
@@ -146,7 +154,7 @@
 
 ### Components for User Story 1
 
-- [ ] T021 [P] [US1] Create register form component in `frontend/components/auth/register-form.tsx`:
+- [X] T021 [P] [US1] Create register form component in `frontend/components/auth/register-form.tsx`:
   - Fields: name, email, password, confirm password
   - Zod schema validation with real-time error display
   - Password strength indicator (8+ chars, uppercase, lowercase, number)
@@ -154,7 +162,7 @@
   - Show loading spinner on submit
   - Success: display message "Check your email to verify"
 
-- [ ] T022 [P] [US1] Create email verification component in `frontend/components/auth/email-verification.tsx`:
+- [X] T022 [P] [US1] Create email verification component in `frontend/components/auth/email-verification-form.tsx`:
   - Display: email address, resend button, go-back link
   - Resend verification email button calls API
   - Show success toast "Verification email sent"
@@ -162,35 +170,35 @@
 
 ### Pages for User Story 1
 
-- [ ] T023 [US1] Create registration page in `frontend/app/(auth)/register/page.tsx`:
+- [X] T023 [US1] Create registration page in `frontend/app/(auth)/register/page.tsx`:
   - Route: `/auth/register` (public, no auth required)
   - Use `<RegisterForm />` component
   - Include link to login page "Already have account? Sign in"
   - Include link to forgot password page
 
-- [ ] T024 [US1] Create email verification page in `frontend/app/(auth)/verify-email/page.tsx`:
+- [X] T024 [US1] Create email verification page in `frontend/app/(auth)/verify-email/page.tsx`:
   - Route: `/auth/verify-email` (public, no auth required)
   - Extract token from query parameter or localStorage (from redirect after register)
-  - Auto-call `GET /verify-email/{token}` on mount
+  - Auto-call `POST /auth/confirm-email` on mount
   - If successful: auto-login + redirect to dashboard
   - If failed: show error message + link to resend or register again
   - Use `<EmailVerification />` component for resend functionality
 
 ### Integration for User Story 1
 
-- [ ] T025 [US1] Implement registration flow in `AuthContext`:
+- [X] T025 [US1] Implement registration flow in `AuthContext`:
   - Add `register(email, password, name)` function
   - Call `POST /auth/register` via auth API
   - On success: redirect to `/auth/verify-email?email={email}`
   - On error: display validation errors (email exists, weak password, etc.)
 
-- [ ] T026 [US1] Implement email verification in `AuthContext`:
+- [X] T026 [US1] Implement email verification in `AuthContext`:
   - Add `verifyEmail(token)` function
-  - Call `GET /verify-email/{token}` via auth API
+  - Call `POST /auth/confirm-email` via auth API
   - On success: set user + access token, redirect to `/dashboard`
   - On error: show error message with retry option
 
-- [ ] T027 [US1] Add resend verification email to `AuthContext`:
+- [X] T027 [US1] Add resend verification email to `AuthContext`:
   - Add `resendVerificationEmail(email)` function
   - Call POST to resend endpoint (if available, else use registration endpoint flow)
   - Show success toast
@@ -207,7 +215,7 @@
 
 ### Components for User Story 2
 
-- [ ] T028 [P] [US2] Create login form component in `frontend/components/auth/login-form.tsx`:
+- [X] T028 [P] [US2] Create login form component in `frontend/components/auth/login-form.tsx`:
   - Fields: email, password
   - Zod schema validation with real-time error display
   - Rate limiting check: if rate limited, disable form + show retry timer
@@ -218,7 +226,7 @@
 
 ### Pages for User Story 2
 
-- [ ] T029 [US2] Create login page in `frontend/app/(auth)/login/page.tsx`:
+- [X] T029 [US2] Create login page in `frontend/app/(auth)/login/page.tsx`:
   - Route: `/auth/login` (public, no auth required)
   - Use `<LoginForm />` component
   - Include link to register page "Don't have account? Sign up"
@@ -226,7 +234,7 @@
 
 ### Integration for User Story 2
 
-- [ ] T030 [US2] Implement login flow in `AuthContext`:
+- [X] T030 [US2] Implement login flow in `AuthContext`:
   - Add `login(email, password)` function
   - Call rate limiting check first via `useRateLimit` hook
   - Call `POST /auth/login` via auth API
@@ -240,14 +248,14 @@
     - Increment rate limit counter
     - Display error message
 
-- [ ] T031 [US2] Implement session restoration in `AuthProvider` on mount:
+- [X] T031 [US2] Implement session restoration in `AuthProvider` on mount:
   - On component mount, check if refresh token exists in sessionStorage
   - If exists: call `GET /auth/me` with refresh token (via Authorization header)
   - If successful: restore user + access token, update Context state
   - If failed (401): clear tokens, user remains on login page
   - Show loading state while restoring to prevent layout shift
 
-- [ ] T032 [US2] Create `useRateLimit` hook in `frontend/lib/hooks/useRateLimit.ts`:
+- [X] T032 [US2] Create `useRateLimit` hook in `frontend/lib/hooks/useRateLimit.ts`:
   - Check localStorage counter for login attempts in last 60 seconds
   - Return: `{ isRateLimited, attempts, remainingTime }`
   - Increment counter on failed attempts
@@ -266,7 +274,7 @@
 
 ### Implementation for User Story 3
 
-- [ ] T033 [US3] Enhance response interceptor in `frontend/lib/api/interceptors.ts` to implement token refresh with retry:
+- [X] T033 [US3] Enhance response interceptor in `frontend/lib/api/interceptors.ts` to implement token refresh with retry:
   - On 401 response: Check if already refreshing (prevent duplicate refresh calls)
   - If not refreshing: Call `POST /auth/refresh` with refresh token
   - If refreshing: Queue the original request + wait for refresh to complete
@@ -279,14 +287,14 @@
     - Emit auth-failed event
     - Redirect to login in AuthProvider listener
 
-- [ ] T034 [US3] Add request queuing logic in `frontend/lib/api/interceptors.ts`:
+- [X] T034 [US3] Add request queuing logic in `frontend/lib/api/interceptors.ts`:
   - Maintain request queue array during token refresh
   - Store pending requests with their resolve/reject callbacks
   - When refresh completes: retry all queued requests
   - When refresh fails: reject all queued requests
   - Clear queue after processing
 
-- [ ] T035 [US3] Add token refresh event system:
+- [X] T035 [US3] Add token refresh event system:
   - Emit `token-refreshed` event when access token is updated
   - AuthProvider listens for this event to update context
   - Prevents multiple state updates from interceptor + context
@@ -303,7 +311,7 @@
 
 ### Components for User Story 5
 
-- [ ] T036 [P] [US5] Create logout button component in `frontend/components/auth/logout-button.tsx`:
+- [X] T036 [P] [US5] Create logout button component in `frontend/components/auth/logout-button.tsx`:
   - Button with logout icon/text
   - Show loading state during logout API call
   - On success: show "Logged out" toast
@@ -311,7 +319,7 @@
 
 ### Integration for User Story 5
 
-- [ ] T037 [US5] Implement logout function in `AuthContext`:
+- [X] T037 [US5] Implement logout function in `AuthContext`:
   - Add `logout()` function
   - Call `POST /auth/logout` via auth API (best effort, may fail if already logged out)
   - Clear access token from Context state
@@ -320,13 +328,13 @@
   - Redirect to `/auth/login`
   - Show "Session ended" message
 
-- [ ] T038 [US5] Add logout button to app header in `frontend/components/app-header.tsx`:
+- [X] T038 [US5] Add logout button to app header in `frontend/components/app-header.tsx`:
   - Display user name in header (from Context)
   - Dropdown menu with "Logout" option
   - Use `<LogoutButton />` component
   - Also show in mobile navigation
 
-- [ ] T039 [US5] Verify route protection prevents access to dashboard after logout:
+- [X] T039 [US5] Verify route protection prevents access to dashboard after logout:
   - Test that accessing `/dashboard/*` redirects to login after logout
   - Verify `/auth/*` routes are accessible after logout
 
@@ -342,13 +350,13 @@
 
 ### Components for User Story 4
 
-- [ ] T040 [P] [US4] Create forgot-password form component in `frontend/components/auth/forgot-password-form.tsx`:
+- [X] T040 [P] [US4] Create forgot-password form component in `frontend/components/auth/forgot-password-form.tsx`:
   - Field: email
   - Zod validation
   - Submit button + loading state
   - On success: show message "Check your email for reset link"
 
-- [ ] T041 [P] [US4] Create reset-password form component in `frontend/components/auth/reset-password-form.tsx`:
+- [X] T041 [P] [US4] Create reset-password form component in `frontend/components/auth/reset-password-form.tsx`:
   - Fields: password, confirm password
   - Zod schema validation with real-time error display
   - Password strength indicator
@@ -357,12 +365,12 @@
 
 ### Pages for User Story 4
 
-- [ ] T042 [US4] Create forgot-password page in `frontend/app/(auth)/forgot-password/page.tsx`:
+- [X] T042 [US4] Create forgot-password page in `frontend/app/(auth)/forgot-password/page.tsx`:
   - Route: `/auth/forgot-password` (public)
   - Use `<ForgotPasswordForm />` component
   - Include link to login + register
 
-- [ ] T043 [US4] Create reset-password page in `frontend/app/(auth)/reset-password/page.tsx`:
+- [X] T043 [US4] Create reset-password page in `frontend/app/(auth)/reset-password/page.tsx`:
   - Route: `/auth/reset-password?token={token}` (public)
   - Extract token from query parameter
   - Use `<ResetPasswordForm />` component
@@ -371,14 +379,14 @@
 
 ### Integration for User Story 4
 
-- [ ] T044 [US4] Implement password reset in `AuthContext`:
+- [X] T044 [US4] Implement password reset in `AuthContext`:
   - Add `forgotPassword(email)` function - call `POST /auth/forgot-password`
   - On success: show success message (no indication of email validity for security)
   - Add `resetPassword(token, password)` function - call `PUT /auth/reset-password`
   - On success: auto-login user + redirect to dashboard
   - On error: display error message "Link expired, request new reset email"
 
-- [ ] T045 [US4] Add forgot-password link to login page in `frontend/app/(auth)/login/page.tsx`:
+- [X] T045 [US4] Add forgot-password link to login page in `frontend/app/(auth)/login/page.tsx`:
   - Include text "Forgot your password?" linking to `/auth/forgot-password`
 
 **Checkpoint**: ✅ User Story 4 complete and independently testable. Password reset flow works end-to-end.
@@ -417,12 +425,12 @@
 
 ### Pages for User Story 6
 
-- [ ] T049 [US6] Create profile view page in `frontend/app/(dashboard)/profile/page.tsx`:
+- [ ] T049 [US6] Create profile view page in `frontend/app/dashboard/profile/page.tsx`:
   - Route: `/dashboard/profile` (protected)
   - Use `<ProfileView />` component
   - Include edit link
 
-- [ ] T050 [US6] Create profile edit page in `frontend/app/(dashboard)/profile/edit/page.tsx`:
+- [ ] T050 [US6] Create profile edit page in `frontend/app/dashboard/profile/edit/page.tsx`:
   - Route: `/dashboard/profile/edit` (protected)
   - Use `<ProfileEditForm />` + `<AvatarUpload />` components
   - Include back link to profile view
@@ -441,7 +449,7 @@
   - Link to profile page
   - Fallback to initials if no avatar
 
-- [ ] T053 [US6] Add profile page link to dashboard in `frontend/app/(dashboard)/layout.tsx`:
+- [ ] T053 [US6] Add profile page link to dashboard in `frontend/app/dashboard/layout.tsx`:
   - Include in navigation menu/sidebar
 
 **Checkpoint**: ✅ User Story 6 complete and independently testable. Users can view and edit profile with avatar upload.
@@ -467,7 +475,7 @@
 
 ### Pages for User Story 7
 
-- [ ] T055 [US7] Create change-password page in `frontend/app/(dashboard)/settings/password/page.tsx`:
+- [ ] T055 [US7] Create change-password page in `frontend/app/dashboard/settings/password/page.tsx`:
   - Route: `/dashboard/settings/password` (protected)
   - Use `<ChangePasswordForm />` component
   - Warning: "Changing password will log you out from all devices"
@@ -484,7 +492,7 @@
     - Redirect to login with message "Password changed, please login again"
   - On error: display error (e.g., "Current password incorrect")
 
-- [ ] T057 [US7] Add settings navigation in `frontend/app/(dashboard)/settings/layout.tsx`:
+- [ ] T057 [US7] Add settings navigation in `frontend/app/dashboard/settings/layout.tsx`:
   - Create settings layout with sidebar/nav
   - Include links to: password, sessions, api-tokens, account deletion
 
@@ -518,7 +526,7 @@
 
 ### Pages for User Story 8
 
-- [ ] T060 [US8] Create sessions management page in `frontend/app/(dashboard)/settings/sessions/page.tsx`:
+- [ ] T060 [US8] Create sessions management page in `frontend/app/dashboard/settings/sessions/page.tsx`:
   - Route: `/dashboard/settings/sessions` (protected)
   - Use `<SessionsList />` component
   - Load sessions on mount via `GET /auth/sessions`
@@ -533,7 +541,7 @@
   - On success: remove from list + show toast
   - Create `useSessions` hook to access sessions data
 
-- [ ] T062 [US8] Add sessions page link to settings navigation in `frontend/app/(dashboard)/settings/layout.tsx`:
+- [ ] T062 [US8] Add sessions page link to settings navigation in `frontend/app/dashboard/settings/layout.tsx`:
   - Include "Active Sessions" link
 
 **Checkpoint**: ✅ User Story 8 complete and independently testable. Multi-device session management works.
@@ -575,7 +583,7 @@
 
 ### Pages for User Story 9
 
-- [ ] T066 [US9] Create API tokens page in `frontend/app/(dashboard)/settings/api-tokens/page.tsx`:
+- [ ] T066 [US9] Create API tokens page in `frontend/app/dashboard/settings/api-tokens/page.tsx`:
   - Route: `/dashboard/settings/api-tokens` (protected, Pro/Enterprise only)
   - Show upgrade prompt if user on Free plan
   - Use `<ApiTokensList />` component
@@ -598,7 +606,7 @@
   - If "free": show upgrade prompt
   - If "pro" or "enterprise": show token management UI
 
-- [ ] T069 [US9] Add API tokens page link to settings in `frontend/app/(dashboard)/settings/layout.tsx`:
+- [ ] T069 [US9] Add API tokens page link to settings in `frontend/app/dashboard/settings/layout.tsx`:
   - Include "API Tokens" link (only visible to Pro/Enterprise users)
 
 **Checkpoint**: ✅ User Story 9 complete and independently testable. API token management works for paid plans only.
@@ -626,7 +634,7 @@
 
 ### Pages for User Story 10
 
-- [ ] T072 [US10] Create account deletion page in `frontend/app/(dashboard)/settings/account/page.tsx`:
+- [ ] T072 [US10] Create account deletion page in `frontend/app/dashboard/settings/account/page.tsx`:
   - Route: `/dashboard/settings/account` (protected)
   - Display: Account info, deletion status if pending
   - "Delete Account" button opens confirmation modal
@@ -651,7 +659,7 @@
     - Provide link to cancel deletion page
     - Or: just show deleted message + auto-logout
 
-- [ ] T075 [US10] Add account deletion page link to settings in `frontend/app/(dashboard)/settings/layout.tsx`:
+- [ ] T075 [US10] Add account deletion page link to settings in `frontend/app/dashboard/settings/layout.tsx`:
   - Include "Delete Account" link at bottom (danger zone)
 
 **Checkpoint**: ✅ User Story 10 complete and independently testable. Account deletion with grace period works.
