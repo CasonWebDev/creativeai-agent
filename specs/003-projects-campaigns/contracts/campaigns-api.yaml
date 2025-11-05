@@ -1,0 +1,483 @@
+openapi: 3.0.3
+info:
+  title: Campaigns API
+  description: Campaign and brief management endpoints
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8000/api/v1
+    description: Local development
+
+security:
+  - bearerAuth: []
+
+tags:
+  - name: Campaigns
+  - name: Briefs
+  - name: Versions
+
+paths:
+  /projects/{projectId}/campaigns:
+    get:
+      tags: [Campaigns]
+      summary: List campaigns in project
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [draft, in_production, completed]
+      responses:
+        '200':
+          description: Campaigns list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: './projects-api.yaml#/components/schemas/Campaign'
+    
+    post:
+      tags: [Campaigns]
+      summary: Create campaign in project
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, objective, briefing]
+              properties:
+                name:
+                  type: string
+                  minLength: 1
+                objective:
+                  type: string
+                  enum: [awareness, conversion, engagement]
+                target_audience:
+                  type: string
+                tone_of_voice:
+                  type: string
+                platforms:
+                  type: array
+                  items:
+                    type: string
+                    enum: [Instagram, Facebook, LinkedIn, TikTok, YouTube, Twitter]
+                image_dimensions:
+                  type: array
+                  items:
+                    type: string
+                  example: ["1080x1080", "1920x1080", "1080x1920"]
+                briefing:
+                  type: string
+                  minLength: 50
+                  maxLength: 2000
+      responses:
+        '201':
+          description: Campaign created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: './projects-api.yaml#/components/schemas/Campaign'
+
+  /campaigns/{id}:
+    get:
+      tags: [Campaigns]
+      summary: Get campaign details
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Campaign details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    allOf:
+                      - $ref: './projects-api.yaml#/components/schemas/Campaign'
+                      - type: object
+                        properties:
+                          brief:
+                            $ref: '#/components/schemas/CampaignBrief'
+                          assets:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/Asset'
+                          versions:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/CampaignVersion'
+    
+    put:
+      tags: [Campaigns]
+      summary: Update campaign
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                objective:
+                  type: string
+                  enum: [awareness, conversion, engagement]
+                status:
+                  type: string
+                  enum: [draft, in_production, completed]
+                target_audience:
+                  type: string
+                tone_of_voice:
+                  type: string
+                platforms:
+                  type: array
+                  items:
+                    type: string
+                image_dimensions:
+                  type: array
+                  items:
+                    type: string
+                briefing:
+                  type: string
+                  minLength: 50
+                  maxLength: 2000
+      responses:
+        '200':
+          description: Campaign updated
+
+    delete:
+      tags: [Campaigns]
+      summary: Delete campaign
+      description: Soft-deletes campaign, permanent deletion after 7 days
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Campaign deleted
+
+  /campaigns/{id}/duplicate:
+    post:
+      tags: [Campaigns]
+      summary: Duplicate campaign
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                target_project_id:
+                  type: integer
+                  description: Target project ID (optional, defaults to same project)
+                name:
+                  type: string
+                  description: Name for duplicated campaign
+      responses:
+        '201':
+          description: Campaign duplicated
+
+  /campaigns/{id}/brief/draft:
+    post:
+      tags: [Briefs]
+      summary: Auto-save brief draft
+      description: Called every 30 seconds by frontend auto-save
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Campaign ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BriefDraftRequest'
+      responses:
+        '200':
+          description: Draft saved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "draft_saved"
+                  auto_saved_at:
+                    type: string
+                    format: date-time
+
+  /campaigns/{id}/brief:
+    put:
+      tags: [Briefs]
+      summary: Update campaign brief
+      description: Full brief update (validates all required fields)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CampaignBrief'
+      responses:
+        '200':
+          description: Brief updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/CampaignBrief'
+
+  /campaigns/{id}/versions:
+    get:
+      tags: [Versions]
+      summary: List campaign versions
+      description: Returns last 5 versions (Enterprise tier only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Version history
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/CampaignVersion'
+        '403':
+          description: Feature not available for user tier
+    
+    post:
+      tags: [Versions]
+      summary: Create version snapshot
+      description: Manual snapshot when user clicks "Save Version" button (Enterprise only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '201':
+          description: Version created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/CampaignVersion'
+        '403':
+          description: Feature not available for user tier
+
+  /campaigns/versions/{versionId}/restore:
+    post:
+      tags: [Versions]
+      summary: Restore campaign version
+      description: Restores campaign to specific version snapshot
+      parameters:
+        - name: versionId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Version restored
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: './projects-api.yaml#/components/schemas/Campaign'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    CampaignBrief:
+      type: object
+      properties:
+        id:
+          type: integer
+        campaign_id:
+          type: integer
+        context:
+          type: string
+          description: Client/brand context
+          example: "Boutique fashion brand targeting millennials"
+        objective:
+          type: string
+          description: Detailed campaign objective
+          example: "Increase brand awareness by 30% in Q1 2025"
+        audience_demographic:
+          type: string
+          example: "Women 25-40, urban, middle-high income"
+        audience_psychographic:
+          type: string
+          example: "Values sustainability, follows fashion trends, active on Instagram"
+        main_message:
+          type: string
+          example: "Sustainable fashion that makes you stand out"
+        cta:
+          type: string
+          description: Call-to-action
+          example: "Shop the collection"
+        visual_references:
+          type: array
+          items:
+            type: string
+            format: uri
+          description: Array of S3 URLs to uploaded reference images
+          maxItems: 5
+          example: ["https://s3.amazonaws.com/bucket/visual-references/user123/abc.jpg"]
+        restrictions:
+          type: string
+          example: "No red colors, avoid competitor mentions"
+        auto_saved_at:
+          type: string
+          format: date-time
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    BriefDraftRequest:
+      type: object
+      description: Partial brief data for auto-save (no required fields)
+      properties:
+        context:
+          type: string
+        objective:
+          type: string
+        audience_demographic:
+          type: string
+        audience_psychographic:
+          type: string
+        main_message:
+          type: string
+        cta:
+          type: string
+        visual_references:
+          type: array
+          items:
+            type: string
+        restrictions:
+          type: string
+
+    Asset:
+      type: object
+      properties:
+        id:
+          type: integer
+        campaign_id:
+          type: integer
+        type:
+          type: string
+          enum: [image, text, video]
+        file_url:
+          type: string
+          format: uri
+          description: S3 URL to asset
+        file_size:
+          type: integer
+          format: int64
+          description: File size in bytes
+        generation_metadata:
+          type: object
+          description: AI generation details (model, prompt, parameters)
+          properties:
+            model:
+              type: string
+            prompt:
+              type: string
+            generation_time_ms:
+              type: number
+        created_at:
+          type: string
+          format: date-time
+
+    CampaignVersion:
+      type: object
+      properties:
+        id:
+          type: integer
+        campaign_id:
+          type: integer
+        version_number:
+          type: integer
+          minimum: 1
+          maximum: 5
+        snapshot:
+          type: object
+          description: Full campaign and brief state at version creation
+          properties:
+            campaign:
+              type: object
+            brief:
+              type: object
+        created_at:
+          type: string
+          format: date-time

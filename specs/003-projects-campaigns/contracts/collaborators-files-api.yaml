@@ -1,0 +1,403 @@
+openapi: 3.0.3
+info:
+  title: Collaboration & File Upload APIs
+  description: Project collaboration management and file upload endpoints
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8000/api/v1
+    description: Local development
+
+security:
+  - bearerAuth: []
+
+tags:
+  - name: Collaborators
+  - name: Files
+  - name: Tags
+
+paths:
+  /projects/{projectId}/collaborators:
+    get:
+      tags: [Collaborators]
+      summary: List project collaborators
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Collaborators list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Collaborator'
+    
+    post:
+      tags: [Collaborators]
+      summary: Add collaborator to project
+      description: Sends email invitation (enforces tier limits)
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, role]
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: "collaborator@example.com"
+                role:
+                  type: string
+                  enum: [editor, viewer]
+                  description: Cannot directly assign 'owner' role
+      responses:
+        '201':
+          description: Collaborator invited
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Collaborator'
+        '403':
+          description: Tier limit reached or insufficient permissions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "You've reached your plan's collaborator limit (5 per project for Pro tier)"
+
+  /projects/{projectId}/collaborators/{collaboratorId}:
+    put:
+      tags: [Collaborators]
+      summary: Update collaborator role
+      description: Only owner can update roles
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: collaboratorId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [role]
+              properties:
+                role:
+                  type: string
+                  enum: [owner, editor, viewer]
+      responses:
+        '200':
+          description: Role updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Collaborator'
+        '403':
+          description: Only owner can update roles
+    
+    delete:
+      tags: [Collaborators]
+      summary: Remove collaborator
+      description: Revokes access immediately (owner only)
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: collaboratorId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Collaborator removed
+        '403':
+          description: Only owner can remove collaborators
+
+  /projects/{projectId}/transfer-ownership:
+    post:
+      tags: [Collaborators]
+      summary: Transfer project ownership
+      description: Current owner becomes editor after transfer
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [new_owner_id]
+              properties:
+                new_owner_id:
+                  type: integer
+                  description: User ID of new owner (must be existing collaborator)
+      responses:
+        '200':
+          description: Ownership transferred
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Ownership transferred successfully"
+        '403':
+          description: Only owner can transfer ownership
+        '404':
+          description: New owner not found in collaborators
+
+  /files/upload:
+    post:
+      tags: [Files]
+      summary: Upload visual reference file
+      description: Validates file (5MB max, JPG/PNG/GIF/WebP), checks storage quota, uploads to S3
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file, campaign_id]
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: Image file (max 5MB)
+                campaign_id:
+                  type: integer
+                  description: Campaign ID to associate file with
+      responses:
+        '201':
+          description: File uploaded successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  url:
+                    type: string
+                    format: uri
+                    description: S3 URL to uploaded file
+                    example: "https://s3.amazonaws.com/bucket/visual-references/user123/abc123.jpg"
+                  file_size:
+                    type: integer
+                    description: File size in bytes
+        '400':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "File exceeds 5MB limit"
+        '403':
+          description: Storage quota exceeded
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Storage quota exceeded (95MB of 100MB used)"
+                  quota:
+                    $ref: '#/components/schemas/StorageQuota'
+
+  /files/quota:
+    get:
+      tags: [Files]
+      summary: Get user's storage quota usage
+      responses:
+        '200':
+          description: Storage quota info
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/StorageQuota'
+
+  /projects/{projectId}/tags:
+    get:
+      tags: [Tags]
+      summary: Get project tags
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Project tags
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        name:
+                          type: string
+                        created_at:
+                          type: string
+                          format: date-time
+    
+    post:
+      tags: [Tags]
+      summary: Add tag to project
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name:
+                  type: string
+                  maxLength: 50
+                  example: "urgent"
+      responses:
+        '201':
+          description: Tag added
+
+  /projects/{projectId}/tags/{tagId}:
+    delete:
+      tags: [Tags]
+      summary: Remove tag from project
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: tagId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Tag removed
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Collaborator:
+      type: object
+      properties:
+        id:
+          type: integer
+        project_id:
+          type: integer
+        user_id:
+          type: integer
+        email:
+          type: string
+          format: email
+        name:
+          type: string
+        role:
+          type: string
+          enum: [owner, editor, viewer]
+          description: |
+            - owner: Full control (edit project, manage collaborators, delete)
+            - editor: Create/edit campaigns, cannot manage collaborators
+            - viewer: Read-only access
+        invited_at:
+          type: string
+          format: date-time
+        accepted_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: Null if invitation pending
+        created_at:
+          type: string
+          format: date-time
+
+    StorageQuota:
+      type: object
+      properties:
+        used_bytes:
+          type: integer
+          format: int64
+          description: Total storage used in bytes
+          example: 52428800
+        quota_bytes:
+          type: integer
+          format: int64
+          description: Total storage quota in bytes
+          example: 104857600
+        used_percent:
+          type: number
+          format: float
+          description: Percentage of quota used
+          example: 50.0
+        tier:
+          type: string
+          enum: [free, pro, enterprise]
+        tier_quota_mb:
+          type: integer
+          description: Quota in megabytes for readability
+          example: 100

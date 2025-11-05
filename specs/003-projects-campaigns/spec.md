@@ -173,10 +173,11 @@ Users can export projects as JSON for backup or external use, and archive old pr
 - **FR-014**: System MUST allow users to duplicate campaigns within same project or to another project (if user has access)
 - **FR-015**: System MUST allow users to delete campaigns (with confirmation); assets are soft-deleted and permanently removed after 7 days
 - **FR-016**: System MUST display detailed campaign view showing: all campaign fields, current status, list of generated assets, version history
+- **FR-051**: System MUST create new campaign version ONLY when user explicitly clicks "Save Version" button (manual snapshots only; Enterprise tier feature)
 
 **Campaign Briefs:**
 
-- **FR-017**: System MUST provide structured brief template with sections: client/brand context, campaign objective, audience (demographic + psychographic), main message, call-to-action, visual references (URLs or uploads), content restrictions
+- **FR-017**: System MUST provide structured brief template with sections: client/brand context, campaign objective, audience (demographic + psychographic), main message, call-to-action, visual references (file uploads only: max 5MB per file, 5 files maximum, formats: JPG/PNG/GIF/WebP), content restrictions
 - **FR-018**: System MUST auto-save brief drafts every 30 seconds (without user action)
 - **FR-019**: System MUST allow users to load previous briefs as templates for new campaigns
 - **FR-020**: System MUST provide AI-powered suggestions to complete incomplete brief sections based on filled content
@@ -191,6 +192,7 @@ Users can export projects as JSON for backup or external use, and archive old pr
 - **FR-026**: System MUST allow project owner to remove collaborators (revoke access immediately)
 - **FR-027**: System MUST allow project owner to transfer project ownership to another collaborator
 - **FR-028**: System MUST prevent non-owner collaborators from modifying project settings or managing collaborators
+- **FR-050**: System MUST log all email delivery failures (including error details and timestamp) but NOT retry or notify user of failures
 
 **Organization & Search:**
 
@@ -212,6 +214,7 @@ Users can export projects as JSON for backup or external use, and archive old pr
 - **FR-038**: System MUST use hard delete for campaigns after 7-day grace period
 - **FR-039**: System MUST cascade delete: deleting project deletes all associated campaigns and their assets
 - **FR-040**: System MUST maintain orphaned assets and permanently delete them 7 days after campaign deletion
+- **FR-047**: System MUST authenticate all API requests using JWT Bearer tokens from existing auth system (same tokens used for login/session management)
 
 **Validations:**
 
@@ -220,6 +223,9 @@ Users can export projects as JSON for backup or external use, and archive old pr
 - **FR-043**: System MUST validate briefing length (50-2000 chars) before saving campaign
 - **FR-044**: System MUST validate project name (required, max 100 chars) before saving
 - **FR-045**: System MUST validate campaign name (required) before saving
+- **FR-046**: System MUST validate uploaded visual reference files (max 5MB per file, 5 files total, formats: JPG/PNG/GIF/WebP only)
+- **FR-048**: System MUST enforce storage quotas per user tier: Free (100MB), Pro (5GB), Enterprise (50GB) for all uploaded files (visual references + generated assets)
+- **FR-049**: System MUST reject file uploads when user storage quota is exceeded and display remaining storage in UI
 
 ### Key Entities
 
@@ -264,6 +270,9 @@ Users can export projects as JSON for backup or external use, and archive old pr
 - **SC-011**: Version history preserves all campaign changes; users can view and restore 5 previous versions
 - **SC-012**: 95% of project operations (create, read, update) complete within 500ms
 - **SC-013**: UI pagination works correctly with 20 projects per page across all filter/sort combinations
+- **SC-014**: Storage quota enforcement prevents uploads when tier limit exceeded (Free: 100MB, Pro: 5GB, Enterprise: 50GB)
+- **SC-015**: Storage usage displayed in UI is accurate within 5% of actual usage
+- **SC-016**: "Save Version" button creates campaign snapshot within 2 seconds; version appears in history immediately
 
 ## Assumptions
 
@@ -288,6 +297,20 @@ Users can export projects as JSON for backup or external use, and archive old pr
 5. **Budget Tracking**: Detailed budget management and forecasting
 6. **Social Media Publishing**: Direct posting to social platforms
 7. **Mobile App**: Only web app (Next.js) is in scope
+
+## Clarifications
+
+### Session 2025-11-05
+
+- Q: Should users be able to upload image files directly as visual references in campaign briefs, or should they only provide URLs to external images? → A: File uploads only - Users must upload reference images
+
+- Q: Should the projects/campaigns API endpoints use the same JWT Bearer token authentication as your existing auth system, or do you need a separate mechanism? → A: JWT Bearer tokens only - Reuse existing auth system's JWT tokens for all API requests
+
+- Q: What storage limits should apply to each user tier for uploaded files (visual references + generated assets)? → A: Conservative limits - Free: 100MB, Pro: 5GB, Enterprise: 50GB
+
+- Q: How should the system handle failed email deliveries (invalid email, server down, spam rejection)? → A: Silent failure - Log error but don't retry or notify user
+
+- Q: What actions should create a new version in campaign history (P3/Enterprise feature)? → A: Manual snapshots only - User explicitly clicks "Save Version" button
 
 ## Context & Decisions
 
